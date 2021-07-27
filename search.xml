@@ -6,6 +6,7 @@
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
 <span id="more"></span>
 <h1 id="1-Bash-Shell初步认识"><a href="#1-Bash-Shell初步认识" class="headerlink" title="1.Bash Shell初步认识"></a>1.Bash Shell初步认识</h1><h2 id="1-什么是Bash-shell-壳"><a href="#1-什么是Bash-shell-壳" class="headerlink" title="1.什么是Bash shell(壳)"></a>1.什么是Bash shell(壳)</h2><p><em>Bash Shell 是一个命令解释器，它在操作系统的最外层，负责用户程序与内核进行交互操作的一种接口，将用户输入的命令翻译给操作系统，并将处理后的结果输出至屏幕。</em></p>
+<p><img src="/images/QQ%E6%88%AA%E5%9B%BE20210727093855.png" alt="imageTitle"></p>
 <p><em>当我们使用远程连接工具连接linux服务，系统则会给打开一个默认的shell，我们可在这个界面执行命令、比如：获取系统当前时间，创建一个用户等等…</em></p>
 <h2 id="2-Bash-Shell能干什么"><a href="#2-Bash-Shell能干什么" class="headerlink" title="2.Bash Shell能干什么"></a>2.Bash Shell能干什么</h2><p><em>使用Shell实现对Linux系统的大部分管理，例如:<br> 1.文件管理<br> 2.权限管理<br> 3.用户管理<br> 4.磁盘管理<br> 5.网络管理<br> 6.软件管理<br> .等等.</em></p>
 <h2 id="3-平时我们如何使用Shell？"><a href="#3-平时我们如何使用Shell？" class="headerlink" title="3.平时我们如何使用Shell？"></a>3.平时我们如何使用Shell？</h2><p><em>输入命令 –&gt; 效率低 –&gt; 适合少量的工作</em></p>
