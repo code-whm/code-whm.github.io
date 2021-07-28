@@ -10,7 +10,7 @@
 
 <h2 id="1-什么是Bash-shell-壳"><a href="#1-什么是Bash-shell-壳" class="headerlink" title="1.什么是Bash shell(壳)"></a>1.什么是Bash shell(壳)</h2><p><em>Bash Shell 是一个命令解释器，它在操作系统的最外层，负责用户程序与内核进行交互操作的一种接口，将用户输入的命令翻译给操作系统，并将处理后的结果输出至屏幕。</em></p>
 <p><img src="/images/QQ%E6%88%AA%E5%9B%BE20210727093855.png" alt="imageTitle"></p>
-<p><em>当我们使用远程连接工具连接linux服务，系统则会给打开一个默认的shell，我们可在这个界面执行命令、比如：获取系统当前时间，创建一个用户等等…</em></p>
+<p><em>当我们使用远程连接工具连接linux服务，系统则会给打开一个默认的shell，我们可在这个界面执行命令、比如：获取系统当前时间，创建一个用户等等….</em></p>
 <h2 id="2-Bash-Shell能干什么"><a href="#2-Bash-Shell能干什么" class="headerlink" title="2.Bash Shell能干什么"></a>2.Bash Shell能干什么</h2><p><em>使用Shell实现对Linux系统的大部分管理，例如:<br> 1.文件管理<br> 2.权限管理<br> 3.用户管理<br> 4.磁盘管理<br> 5.网络管理<br> 6.软件管理<br> .等等.</em></p>
 <h2 id="3-平时我们如何使用Shell？"><a href="#3-平时我们如何使用Shell？" class="headerlink" title="3.平时我们如何使用Shell？"></a>3.平时我们如何使用Shell？</h2><p><em>输入命令 –&gt; 效率低 –&gt; 适合少量的工作</em></p>
 <p><em>Shell Script(脚本) –&gt; 效率高 –&gt; 适合复杂的重复性高的工作</em></p>
@@ -67,7 +67,7 @@
     <url>/2021/07/28/Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
 <h1 id="1-文件管理概述"><a href="#1-文件管理概述" class="headerlink" title="1.文件管理概述"></a>1.文件管理概述</h1><p><em><strong>1.Bash Shell对文件进行管理</strong></em></p>
-<p><em>谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？<br> 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等<br> 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？</em></p>
+<p><em>谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？<br> 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等<br> 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？？</em></p>
 <span id="more"></span>
 <h1 id="2-系统目录结构"><a href="#2-系统目录结构" class="headerlink" title="2.系统目录结构"></a>2.系统目录结构</h1><p><em>几乎所有的计算机操作系统都是使用目录结构组织文件。具体来说就是在一个目录中存放子目录和文件, 而在子目录中又会进一步存放子目录和文件，以此类推形成一个树状的文件结构，由于其结构很像一棵树的分支, 所以该结构又被称为“目录树”。<br> Windows: 以多根的方式组织文件 C:\ D:<br> Linux:以单根的方式组织文件   /</em></p>
 <p><em><strong>1.存放命令相关的目录</strong></em></p>
@@ -184,7 +184,7 @@
 <p><em><strong>3.VI与VIM有什么区别?</strong></em></p>
 <p><em>vi和vim都是文本编辑器，只不过vim是vi的增强版，比vi多了语法高亮显示，其他编辑功能几乎无差，所以使用vi还是vim取决个人习惯。(相当于window</em>s<em>系统下的文本编辑软件“记事本”与”notepad++”的区别)</em><br>PS：因为前期最小化安装CentOS系统，所以默认情况下没有vim命令，但可以使用yum install vim -y安装*</p>
 <p><em><strong>4.如何使用VIM编辑器?</strong></em></p>
-<p><em>在使用VIM之前，我们需要先介绍下VIM的三种模式: 普通模式、编辑模式、命令模式，每种模式分别支持多种不同的快捷键，要想高效率地操作文本，就必须先搞清这三种模式的操作区别以及模式之间的切换方法。</em></p>
+<p><em>在使用VIM之前，我们需要先介绍下VIM的三种模式: 普通模式、编辑模式、命令模式，每种模式分别支持多种不同的快捷键，要想高效率地操作文本，那就必须先搞清这三种模式的操作区别以及模式之间的切换方法。</em></p>
 <p><em><strong>5.VIM模式三种模式介绍</strong></em></p>
 <p><em>1.普通模式: 主要是控制光标移动，可对文本进行复制、粘贴、删除等工作。<br> 使用vim filename 编辑一个文件时，一进入该文件就是普通模式了。<br> 在这个模式下，可以进行光标移动、复制、删除、粘贴操作。</em></p>
 <p><em>2.编辑模式: 主要进行文本内容编辑和修改<br> 从普通模式进入编辑模式，只需你按一个键即可（i, I, a, A, o, O）<br> 当进入编辑模式时，会在屏幕的最下一行会出现 “INSERT”标记<br> 从编辑模式回到普通模式只需要按键盘左上方的 ESC 键即可。</em></p>

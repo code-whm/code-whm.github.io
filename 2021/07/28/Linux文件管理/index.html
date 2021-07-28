@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="1.文件管理概述1.Bash Shell对文件进行管理 谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？ 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？">
+  <meta name="description" content="1.文件管理概述1.Bash Shell对文件进行管理 谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？ 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="02.Linux文件管理">
 <meta property="og:url" content="http://example.com/2021/07/28/Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/index.html">
 <meta property="og:site_name" content="Lucifer">
-<meta property="og:description" content="1.文件管理概述1.Bash Shell对文件进行管理 谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？ 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？">
+<meta property="og:description" content="1.文件管理概述1.Bash Shell对文件进行管理 谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？ 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？？">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-07-28T01:50:39.148Z">
-<meta property="article:modified_time" content="2021-07-28T01:50:39.147Z">
+<meta property="article:published_time" content="2021-07-28T07:09:17.480Z">
+<meta property="article:modified_time" content="2021-07-28T07:09:17.479Z">
 <meta property="article:author" content="MING">
 <meta property="article:tag" content="文件 -">
 <meta name="twitter:card" content="summary">
@@ -218,7 +218,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-28 09:50:39" itemprop="dateCreated datePublished" datetime="2021-07-28T09:50:39+08:00">2021-07-28</time>
+              <time title="创建时间：2021-07-28 15:09:17" itemprop="dateCreated datePublished" datetime="2021-07-28T15:09:17+08:00">2021-07-28</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
       
         <script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
 <h1 id="1-文件管理概述"><a href="#1-文件管理概述" class="headerlink" title="1.文件管理概述"></a>1.文件管理概述</h1><p><em><strong>1.Bash Shell对文件进行管理</strong></em></p>
-<p><em>谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？<br> 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等<br> 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？</em></p>
+<p><em>谈到Linux文件管理，首先我们需要了解的就是，我们要对文件做些什么事情？<br> 其实无非就是对一个文件进行、创建、复制、移动、查看、编辑、压缩、查找、删除、等等<br> 例如: 当我们想修改系统的主机名称，是否应该知道文件在哪，才能去做对应的修改？？</em></p>
 <span id="more"></span>
 <h1 id="2-系统目录结构"><a href="#2-系统目录结构" class="headerlink" title="2.系统目录结构"></a>2.系统目录结构</h1><p><em>几乎所有的计算机操作系统都是使用目录结构组织文件。具体来说就是在一个目录中存放子目录和文件, 而在子目录中又会进一步存放子目录和文件，以此类推形成一个树状的文件结构，由于其结构很像一棵树的分支, 所以该结构又被称为“目录树”。<br> Windows: 以多根的方式组织文件 C:\ D:<br> Linux:以单根的方式组织文件   /</em></p>
 <p><em><strong>1.存放命令相关的目录</strong></em></p>
@@ -374,10 +374,13 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2021/07/28/Bash%E6%A6%82%E8%BF%B0/" rel="next" title="01.Bash概述">
-      01.Bash概述 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/07/28/Bash%E6%A6%82%E8%BF%B0/" rel="prev" title="01.Bash概述">
+      <i class="fa fa-chevron-left"></i> 01.Bash概述
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/28/Linux%E6%96%87%E4%BB%B6%E7%BC%96%E8%BE%91%EF%BC%88vim%EF%BC%89/" rel="next" title="03.Linux文件编辑(vim)">
+      03.Linux文件编辑(vim) <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
