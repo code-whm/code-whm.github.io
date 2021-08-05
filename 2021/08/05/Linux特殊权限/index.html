@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1.特殊权限概述  2.特殊权限SUID  3.特殊权限SGID  4.特殊权限SBIT  5.权限属性chattr  6.进程掩码umask">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux特殊权限">
+<meta property="og:url" content="http://example.com/2021/08/05/Linux%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90/index.html">
+<meta property="og:site_name" content="Lucifer">
+<meta property="og:description" content="1.特殊权限概述  2.特殊权限SUID  3.特殊权限SGID  4.特殊权限SBIT  5.权限属性chattr  6.进程掩码umask">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-05T02:45:24.038Z">
+<meta property="article:modified_time" content="2021-08-05T02:45:24.036Z">
+<meta property="article:author" content="MING">
+<meta property="article:tag" content="权限 -">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/08/05/Linux%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux特殊权限 | Lucifer</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lucifer</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">且将新火试新茶，诗酒趁年华。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">6</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/05/Linux%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="MING">
+      <meta itemprop="description" content="Son of the morning star">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lucifer">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux特殊权限
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-05 10:45:24" itemprop="dateCreated datePublished" datetime="2021-08-05T10:45:24+08:00">2021-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">基础 -</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
+
+<p>1.特殊权限概述  2.特殊权限SUID  3.特殊权限SGID  4.特殊权限SBIT  5.权限属性chattr  6.进程掩码umask</p>
+<span id="more"></span>
+
+<h1 id="1-特殊权限概述"><a href="#1-特殊权限概述" class="headerlink" title="1.特殊权限概述"></a>1.特殊权限概述</h1><p><em>前面我们已经学习过 r（读）、w（写）、 x（执行）这三种普通权限，但是我们在査询系统文件权限时会发现出现了一些其他权限字母，比如：</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bgx ~]<span class="comment"># ll /usr/bin/passwd</span></span><br><span class="line">-rwsr-xr-x. 1 root root 27832 Jun 10  2014 /usr/bin/passwd</span><br></pre></td></tr></table></figure>
+
+<p><em>在属主本来应该是 x（执行）权限的位置出现了一个小写s，这是什么权限？我们把这种权限称作 SetUID 权限，也叫作 SUID 的特殊权限。这种权限有什么作用呢？或者说能干啥？别急，先往下看….</em></p>
+<h1 id="2-特殊权限SUID"><a href="#2-特殊权限SUID" class="headerlink" title="2.特殊权限SUID"></a>2.特殊权限SUID</h1><p><em><strong>1.问题抛出</strong></em><br> <em>在 Linux 系统中，每个普通用户都可以更改自己的密码，这是合理的设置。问题是，普通用户的信息保存在 /etc/passwd  文件中，用户的密码在 /etc/shadow 文件中，也就是说，普通用户在更改自己的密码时修改了 /etc/shadow  文件中的加密密码，但是文件权限显示，普通用户对这两个文件其实都是没有写权限的，那为什么普通用户可以修改自己的权限呢？……(难道学了个假的权限)</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@bgx ~]<span class="comment"># ll /etc/passwd</span></span><br><span class="line">-rw-r--r-- 1 root root 6209 Apr 13 03:26 /etc/passwd</span><br><span class="line">[root@bgx ~]<span class="comment"># ll /etc/shadow</span></span><br><span class="line">---------- 1 root root 11409 Apr 13 03:26 /etc/shadow</span><br></pre></td></tr></table></figure>
+
+<p><em><strong>2.解决方案</strong></em></p>
+<p><em>其实，普通用户可以修改自己的密码在于 passwd 命令。该命令拥有特殊权限 SetUID，也就是在属主的权限位的执行权限上是 s。可以这样来理解它：当一个具有执行权限的文件设置 SetUID 权限后，用户在执行这个文件时将以文件所有者的身份来执行。</em></p>
+<p><em>PS: 当普通用户使用 passwd 命令更改自己的密码时，实际上是在用 passwd 命令所有者 root 的身份在执行  passwd 命令，root 当然可以将密码写入 /etc/shadow 文件，所以普通用户也可以修改 /etc/shadow  文件，命令执行完成后，该身份也随之消失。</em></p>
+<p><em><strong>3.示例演示</strong></em></p>
+<p><em>举个例子，有一个用户 lamp，她可以修改自己的密码，因为 passwd 命令拥有 SetUID 权限；但是她不能査看 /etc/shadow 文件的内容，因为査看文件的命令（如 cat）没有 SetUID 权限。命令如下：</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#自己可以修改自己的密码，从而改变/etc/shadow中的数据</span></span><br><span class="line">[lamp@bgx ~]$ passwd</span><br><span class="line"></span><br><span class="line"><span class="comment">#但无法使用cat命令查看/etc/shadow</span></span><br><span class="line">[lamp@bgx ~]$ cat /etc/shadow</span><br><span class="line">cat: /etc/shadow: Permission denied</span><br></pre></td></tr></table></figure>
+
+<p><em><strong>4.例子解释</strong></em></p>
+<p><em>passwd 是系统命令，可以执行，所以可以赋予 SetUID 权限。<br>lamp 用户对 passwd 命令拥有 x（执行）权限。<br>lamp 用户在执行 passwd 命令的过程中，会暂时切换为 root 身份，所以可以修改 /etc/shadow 文件。<br>命令结束，lamp 用户切换回自己的身份。<br>PS: cat命令没有 SetUID权限，所以使用 lamp 用户身份去访问 /etc/shadow 文件，当然没有相应权限了。<br>F: 但如果将passwd命令的suid去掉会发生什么？？？</em></p>
+<p><em>2.suid授权方法4000 权限字符s(S),用户位置上的x位上设置</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># chmod 4755 passwd</span></span><br><span class="line"><span class="comment"># chmod  u+s  passwd</span></span><br></pre></td></tr></table></figure>
+
+<p><em>3.suid的作用</em><br> <em>1.让普通用户对可执行的二进制文件，临时拥有二进制文件的所属主权限。<br>2.如果设置的二进制文件没有执行权限,那么suid的权限显示就是大S。<br>3.特殊权限suid仅对二进制可执行程序有效，其他文件或目录则无效。<br>注意: suid极度危险，不信可以尝试对vim或rm进行设定SetUID。</em></p>
+<h1 id="3-特殊权限SGID"><a href="#3-特殊权限SGID" class="headerlink" title="3.特殊权限SGID"></a>3.特殊权限SGID</h1><p><em>将目录设置为sgid后，如果在该目录下创建文件，都将与该目录的所属组保持一致，演示如下</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1.建立测试目录</span></span><br><span class="line">[root@bgx ~]<span class="comment"># cd /tmp/ &amp;&amp; mkdir dtest</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2.给测试目录赋予SetGID权限，检查SetGID是否生效</span></span><br><span class="line">[root@bgx tmp]<span class="comment"># chmod g+s dtest/ &amp;&amp; ll -d dtest/</span></span><br><span class="line">drwxr-sr-x 2 root root 6 Apr 13 05:21 dtest/</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.给测试目录赋予777权限，让普通用户可以写</span></span><br><span class="line">[root@bgx tmp]<span class="comment"># chmod 777 dtest/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#4.切换成普通用户lamp，并进入该目录</span></span><br><span class="line">[root@bgx tmp]<span class="comment"># su - lamp</span></span><br><span class="line">[lamp@bgx ~]$ <span class="built_in">cd</span> /tmp/dtest/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.普通用户创建测试文件，检查文件的信息</span></span><br><span class="line">[lamp@bgx dtest]$ touch lamp_test</span><br><span class="line">[lamp@bgx dtest]$ ll</span><br><span class="line">-rw-rw-r-- 1 lamp root 0 Apr 13 05:21 lamp_test</span><br></pre></td></tr></table></figure>
+
+<p><em>2.sgid授权方法: 2000权限字符s(S)，取决于属组位置上的x</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># chmod 2755  directory </span></span><br><span class="line"><span class="comment"># chmod  g+s  directory</span></span><br></pre></td></tr></table></figure>
+
+<p><em>3.sgid作用<br>1.针对用户组权限位修改，用户创建的目录或文件所属组和该目录的所属组一致。<br>2.当某个目录设置了sgid后，在该目录中新建的文件不在是创建该文件的默认所属组<br>3.使用sgid可以使得多个用户之间共享一个目录的所有文件变得简单。</em></p>
+<h1 id="4-特殊权限SBIT"><a href="#4-特殊权限SBIT" class="headerlink" title="4.特殊权限SBIT"></a>4.特殊权限SBIT</h1><p><em>Sticky(SI TI KI)粘滞位目前只对目录有效，作用如下：<br>普通用户对该目录拥有 w 和 x 权限，即普通用户可以在此目录中拥有写入权限。如果没有粘滞位，那么普通用户拥有 w  权限，就可以删除此目录下的所有文件，包括其他用户建立的文件。但是一旦被赋予了粘滞位，除了 root 可以删除所有文件，普通用户就算拥有 w  权限，也只能删除自己建立的文件，而不能删除其他用户建立的文件。</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bgx tmp]<span class="comment"># ll -d /tmp/</span></span><br><span class="line">drwxrwxrwt. 12 root root 4096 Apr 13 05:32 /tmp/</span><br></pre></td></tr></table></figure>
+
+<p><em>sticky授权方法，1000 权限字符t(T),其他用户位的x位上设置。</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># chmod 1755  /tmp</span></span><br><span class="line"><span class="comment"># chmod o+t /tmp</span></span><br></pre></td></tr></table></figure>
+
+<p><em>3.sticky作用</em><br> <em>1.让多个用户都具有写权限的目录，并让每个用户只能删自己的文件。<br> 2.特殊sticky目录表现在others的x位，用小t表示，如果没有执行权限是T<br> 3.一个目录即使它的权限为”777”如果是设置了粘滞位，除了目录的属主和”root”用户有权限删除，除此之外其他用户都不允许删除该目录。</em></p>
+<h1 id="5-权限属性chattr"><a href="#5-权限属性chattr" class="headerlink" title="5.权限属性chattr"></a>5.权限属性chattr</h1><p><em>chatrr 只有 root 用户可以使用，用来修改文件系统的权限属性，建立凌驾于 rwx 基础权限之上的授权。<br>chatrr 命令格式：[root@bgx ~]# chattr [+-=] [选项] 文件或目录名</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#选项: + 增加权限 -减少权限 =等于某个权限</span></span><br><span class="line"><span class="comment"># a：让文件或目录仅可追加内容</span></span><br><span class="line"><span class="comment"># i：不得任意更动文件或目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#1.创建文件并设置属性</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># touch file_a file_i</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># lsattr file_a file_i</span></span><br><span class="line">---------------- file_a</span><br><span class="line">---------------- file_i</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.使用chattr设置属性，lsattr查看权限限制</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># chattr +a file_a</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># chattr +i file_i</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># lsattr file_a file_i</span></span><br><span class="line">-----a---------- file_a</span><br><span class="line">----i----------- file_i</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.a权限，无法写入和删除文件，但可以追加数据，适合/etc/passwd这样的文件</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># echo &quot;aa&quot; &gt; file_a</span></span><br><span class="line">bash: file_a: Operation not permitted</span><br><span class="line">[root@lucifer ~]<span class="comment"># rm -f file_a</span></span><br><span class="line">rm: cannot remove ‘file_a’: Operation not permitted</span><br><span class="line">[root@lucifer ~]<span class="comment"># echo &quot;aa&quot; &gt;&gt; file_a</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#4.i权限, 无法写入，无法删除，适合不需要更改的重要文件加锁</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># echo &quot;i&quot; &gt; file_i</span></span><br><span class="line">bash: file_i: Permission denied</span><br><span class="line">[root@lucifer ~]<span class="comment"># echo &quot;i&quot; &gt;&gt; file_i</span></span><br><span class="line">bash: file_i: Permission denied</span><br><span class="line">[root@lucifer ~]<span class="comment"># rm -f  file_i</span></span><br><span class="line">rm: cannot remove ‘file_i’: Operation not permitted</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.解除限制</span></span><br><span class="line">[root@tianyun ~]<span class="comment"># chattr -a file_a	</span></span><br><span class="line">[root@tianyun ~]<span class="comment"># chattr -i file_i</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="6-进程掩码umask"><a href="#6-进程掩码umask" class="headerlink" title="6.进程掩码umask"></a>6.进程掩码umask</h1><p><em><strong>1.umask是什么?</strong></em><br> <em>当我们登录系统之后创建一个文件总是有一个默认权限的，比如: 目录755、文件644、那么这个权限是怎么来的呢？这就是umask干的事情。umask设置了用户创建文件的默认权限。</em></p>
+<p><em><strong>2.umask是如何改变创建新文件的权限</strong></em><br><em>系统默认umask为022，那么当我们创建一个目录时，正常情况下目录的权限应该是777，但umask表示要减去的值，所以新目录文件的权限应该是777 - 022 =755。至于文件的权限也依次类推666 - 022 =644。</em></p>
+<p><em><strong>3.umask涉及哪些配置文件</strong></em><br><em>umask涉及到的相关文件/etc/bashrc /etc/profile ~/.bashrc ~/.bash_profile<br> shell (vim,touch) –umask–&gt; 会影响创建的新文件或目录权限<br> vsftpd服务如果修改–umask–&gt; 会影响ftp服务中新创建文件或创建目录权限<br> useradd如果修改umask–&gt; 会影响用户HOME家目录权限</em></p>
+<p><em><strong>4.umask演示示例</strong></em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1.假设umask值为：022（所有位为偶数）</span></span><br><span class="line"><span class="comment">#文件的起始权限值</span></span><br><span class="line">6 6 6  -  0 2 2  = 6 4 4 </span><br><span class="line"></span><br><span class="line"><span class="comment">#2.假设umask值为：045（其他用户组位为奇数）</span></span><br><span class="line"><span class="comment">#计算出来的权限。由于umask的最后一位数字是5，所以，在其他用户组位再加1。</span></span><br><span class="line">6 6 6  -   0 4 5 = 6 2 1</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.默认目录权限计算方法</span></span><br><span class="line">7 7 7  -  0 2 2 = 7 5 5</span><br><span class="line"> </span><br><span class="line"><span class="comment">#umask所有位全为偶数时</span></span><br><span class="line"><span class="comment"># umask 044</span></span><br><span class="line"><span class="comment"># mkdir d044   目录权限为733</span></span><br><span class="line"><span class="comment"># touch f044   文件权限为622</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#umask部分位为奇数时</span></span><br><span class="line"><span class="comment"># umask 023</span></span><br><span class="line"><span class="comment"># mkdir d023   目录权限为754</span></span><br><span class="line"><span class="comment"># touch f023   文件权限为644	</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#umask值的所有位为奇数时</span></span><br><span class="line"><span class="comment"># umask 035</span></span><br><span class="line"><span class="comment"># mkdir d035   目录权限为742</span></span><br><span class="line"><span class="comment"># touch f035   文件权限为642</span></span><br></pre></td></tr></table></figure>
+
+<p><em>示例1: 在 shell 进程中创建文件</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看当前用户的umask权限</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># umask</span></span><br><span class="line">0022</span><br><span class="line">[root@lucifer ~]<span class="comment"># touch file0022</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># mkdir dir0022</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># ll -d file0022  dir0022/</span></span><br><span class="line">drwxr-xr-x 2 root root 6 Jan 24 09:02 dir0022/</span><br><span class="line">-rw-r--r-- 1 root root 0 Jan 24 09:02 file0022</span><br></pre></td></tr></table></figure>
+
+<p><em>示例2: 修改 shell umask 值(临时生效)</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@lucifer ~]<span class="comment"># umask 000</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># mkdir dir000</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># touch file000</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># ll -d dir000 file000</span></span><br><span class="line">drwxrwxrwx 2 root root 6 Jan 24 09:04 dir000</span><br><span class="line">-rw-rw-rw- 1 root root 0 Jan 24 09:04 file000</span><br></pre></td></tr></table></figure>
+
+<p><em>示例3: 通过 umask 决定新建用户 HOME 目录的权限</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@lucifer ~]<span class="comment"># vim /etc/login.defs</span></span><br><span class="line">UMASK 077</span><br><span class="line">[root@lucifer ~]<span class="comment"># useradd dba</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># ll -d /home/dba/</span></span><br><span class="line">drwx------. 4 dba dba 4096 3 月 11 19:50 /home/dba/</span><br><span class="line"></span><br><span class="line">[root@tianyun ~]<span class="comment"># vim /etc/login.defs</span></span><br><span class="line">UMASK 000</span><br><span class="line">[root@lucifer ~]<span class="comment"># useradd sa</span></span><br><span class="line">[root@lucifer ~]<span class="comment"># ll -d /home/sa/</span></span><br><span class="line">drwxrwxrwx. 4 sa sa 4096 3 月 11 19:53 /home/sa/</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>MING
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/2021/08/05/Linux%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90/" title="Linux特殊权限">http://example.com/2021/08/05/Linux特殊权限/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9D%83%E9%99%90/" rel="tag"># 权限 -</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/02/Linux%E5%9F%BA%E6%9C%AC%E6%9D%83%E9%99%90/" rel="prev" title="Linux基本权限">
+      <i class="fa fa-chevron-left"></i> Linux基本权限
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">1.特殊权限概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90SUID"><span class="nav-number">2.</span> <span class="nav-text">2.特殊权限SUID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90SGID"><span class="nav-number">3.</span> <span class="nav-text">3.特殊权限SGID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E7%89%B9%E6%AE%8A%E6%9D%83%E9%99%90SBIT"><span class="nav-number">4.</span> <span class="nav-text">4.特殊权限SBIT</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E6%9D%83%E9%99%90%E5%B1%9E%E6%80%A7chattr"><span class="nav-number">5.</span> <span class="nav-text">5.权限属性chattr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-%E8%BF%9B%E7%A8%8B%E6%8E%A9%E7%A0%81umask"><span class="nav-number">6.</span> <span class="nav-text">6.进程掩码umask</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="MING"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">MING</p>
+  <div class="site-description" itemprop="description">Son of the morning star</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=491294233&auto=1&height=66"></iframe>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1844449888&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MING</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
