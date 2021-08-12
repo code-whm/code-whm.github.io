@@ -61,6 +61,25 @@
       </tags>
   </entry>
   <entry>
+    <title>ELK</title>
+    <url>/2021/08/12/ELK/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
+
+<h1 id="第1章-Elasticsearch介绍"><a href="#第1章-Elasticsearch介绍" class="headerlink" title="第1章 Elasticsearch介绍"></a>第1章 Elasticsearch介绍</h1><h2 id="1-什么是Lucene"><a href="#1-什么是Lucene" class="headerlink" title="1.什么是Lucene"></a>1.什么是Lucene</h2><p><em>Lucene是一个高性能的java搜索引擎库,操作非常繁琐，需要具备java开发经验。</em><br><em>Elasticsearch是基于Lucene之上包装一层外壳，屏蔽了Lucene的复杂操作，即使不会java语言也可以快速上手</em></p>
+<span id="more"></span>
+
+<h2 id="2-什么是全文检索和倒排索引"><a href="#2-什么是全文检索和倒排索引" class="headerlink" title="2.什么是全文检索和倒排索引"></a>2.什么是全文检索和倒排索引</h2><p><strong>索引就好比书的目录，</strong><br><em>如果我们想快速查看某个章节，只需要找到目录里相应章节对应的页数即可。<br>通过目录找到章节，通过章节找到页码这个过程就是索引的过程。</em></p>
+<p><em>索引的目的就是加快数据搜索的效率。</em></p>
+<p><a href="http://note.youdao.com/noteshare?id=28a29c863323153e8696c846c0be7a17">http://note.youdao.com/noteshare?id=28a29c863323153e8696c846c0be7a17</a></p>
+]]></content>
+      <categories>
+        <category>ELK -</category>
+      </categories>
+      <tags>
+        <tag>ELK -</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux用户管理</title>
     <url>/2021/07/28/Linuxuser/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
