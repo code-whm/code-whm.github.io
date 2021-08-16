@@ -61,11 +61,15 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2021/08/16/ELK/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><ul>
-<li></li>
-</ul>
+    <title>ELK</title>
+    <url>/2021/08/16/ELk1/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
+
+
+
+
+
+
 <script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
 
 <h1 id="第1章-Elasticsearch介绍"><a href="#第1章-Elasticsearch介绍" class="headerlink" title="第1章 Elasticsearch介绍"></a>第1章 Elasticsearch介绍</h1><h2 id="1-什么是Lucene"><a href="#1-什么是Lucene" class="headerlink" title="1.什么是Lucene"></a>1.什么是Lucene</h2><p><em>Lucene是一个高性能的java搜索引擎库,操作非常繁琐，需要具备java开发经验。</em><br><em>Elasticsearch是基于Lucene之上包装一层外壳，屏蔽了Lucene的复杂操作，即使不会java语言也可以快速上手</em></p>
@@ -136,7 +140,7 @@
 <p><img src="%E6%A8%A1%E6%9D%BF.assets/5CC8B68B9E224D5CBDBDD41D467B871A" alt="img"></p>
 <p><img src="%E6%A8%A1%E6%9D%BF.assets/28F833C6A3814F86BADCA5E3C2C5A01D" alt="img"></p>
 <h1 id="第6章-Elasticsearch插入命令"><a href="#第6章-Elasticsearch插入命令" class="headerlink" title="第6章 Elasticsearch插入命令"></a>第6章 Elasticsearch插入命令</h1><p><strong>进入控制台</strong></p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/A07AB8869ED24DD1AC5F8003F2745CD8?method=download&shareKey=82c26bed5a05f7bd890918378ae7dc09" alt="img"></p>
+<p><img src="%E6%A8%A1%E6%9D%BF.assets/A07AB8869ED24DD1AC5F8003F2745CD8" alt="img"></p>
 <hr>
 <p><strong>访问api接口方法</strong></p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#curl 指定请求方法</span></span><br><span class="line">GET  查看</span><br><span class="line">POST 上传,新建</span><br><span class="line">PUT  更新</span><br><span class="line">DELETE 删除</span><br><span class="line"></span><br><span class="line"><span class="comment">#kibana 控制台</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#专业调整api接口的工具 Postman</span></span><br></pre></td></tr></table></figure>
@@ -193,7 +197,7 @@
 <h2 id="4-默认分片和副本规则"><a href="#4-默认分片和副本规则" class="headerlink" title="4.默认分片和副本规则"></a>4.默认分片和副本规则</h2><p><em>7.X版本之前默认规则: 1副本，5分片<br>7.x版本之后默认规则: 1副本，1分片</em></p>
 <h2 id="5-节点类型"><a href="#5-节点类型" class="headerlink" title="5.节点类型"></a>5.节点类型</h2><p><em>主节点: 管理: 负责调度数据分配到哪个节点<br>数据节点:  实际负责处理数据的节点<br>工作节点-默认: 主节点也是工作节点</em></p>
 <h2 id="6-集群健康状态"><a href="#6-集群健康状态" class="headerlink" title="6.集群健康状态"></a>6.集群健康状态</h2><p><em>绿色: 所有数据都完整，且副本数满足<br>黄色: 所有数据都完整，但是副本数不满足<br>红色: 一个或多个索引数据不完整</em></p>
-<p><img src="ELK.assets/580590BC2CDA4C469ACDBE7BCBBCFF12" alt="img"></p>
+<p><img src="%E6%A8%A1%E6%9D%BF.assets/580590BC2CDA4C469ACDBE7BCBBCFF12" alt="img"></p>
 <h1 id="第11章-Elasticsearch集群部署"><a href="#第11章-Elasticsearch集群部署" class="headerlink" title="第11章: Elasticsearch集群部署"></a>第11章: Elasticsearch集群部署</h1><h2 id="1-部署集群前注意事项"><a href="#1-部署集群前注意事项" class="headerlink" title="1.部署集群前注意事项"></a>1.部署集群前注意事项</h2><p><em><strong>最好是使用干净的环境部署集群，如果以前有单节点的数据，最好备份出来，然后再清空集群数据</strong></em></p>
 <h2 id="2-新节点安装java"><a href="#2-新节点安装java" class="headerlink" title="2.新节点安装java"></a>2.新节点安装java</h2><p><em>7.x版本之后不需要单独的安装JDK，软件包自带了JDK</em></p>
 <h2 id="3-新节点安装Elasticsearch"><a href="#3-新节点安装Elasticsearch" class="headerlink" title="3.新节点安装Elasticsearch"></a>3.新节点安装Elasticsearch</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">rpm -ivh elasticsearch-7.9.1-x86_64.rpm </span><br></pre></td></tr></table></figure>
@@ -204,7 +208,7 @@
 
 <h2 id="5-1-配置文件解释"><a href="#5-1-配置文件解释" class="headerlink" title="5.1 配置文件解释"></a>5.1 配置文件解释</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">cluster.name: oldboy_linux   <span class="comment">#集群名称</span></span><br><span class="line">node.name: node-1 <span class="comment">#节点名称</span></span><br><span class="line">path.data: /var/lib/elasticsearch <span class="comment">#数据目录</span></span><br><span class="line">path.logs: /var/<span class="built_in">log</span>/elasticsearch <span class="comment">#日志目录</span></span><br><span class="line">bootstrap.memory_lock: <span class="literal">true</span> <span class="comment">#设置内存锁定</span></span><br><span class="line">network.host: 127.0.0.1,10.0.0.51 <span class="comment">#本地监听地址</span></span><br><span class="line">http.port: 9200 <span class="comment">#本地端口</span></span><br><span class="line">discovery.seed_hosts: [<span class="string">&quot;10.0.0.51&quot;</span>,<span class="string">&quot;10.0.0.52&quot;</span>] <span class="comment">#集群节点互相发现的地址，不需要把所有节点IP都写上。</span></span><br><span class="line">cluster.initial_master_nodes: [<span class="string">&quot;10.0.0.51&quot;</span>] <span class="comment">#集群初始化节点，只有创建集群的第一次有用，集群创建后参数失效。</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="ELK.assets/995105CAA37C4B2CAD282C137FE9950D" alt="img"></p>
+<p><img src="%E6%A8%A1%E6%9D%BF.assets/995105CAA37C4B2CAD282C137FE9950D" alt="img"></p>
 <h2 id="5-2-node1-es01配置文件"><a href="#5-2-node1-es01配置文件" class="headerlink" title="5.2 node1-es01配置文件:"></a>5.2 node1-es01配置文件:</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">root@es01 ~]<span class="comment"># grep &#x27;^[a-Z]&#x27; /etc/elasticsearch/elasticsearch.yml</span></span><br><span class="line">cluster.name: oldboy_linux_es</span><br><span class="line">node.name: es01.oldboylinux.com</span><br><span class="line">path.data: /var/lib/elasticsearch</span><br><span class="line">path.logs: /var/<span class="built_in">log</span>/elasticsearch</span><br><span class="line">bootstrap.memory_lock: <span class="literal">true</span></span><br><span class="line">network.host: 10.0.0.80,127.0.0.1</span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.seed_hosts: [<span class="string">&quot;es01.oldboylinux.com&quot;</span>,<span class="string">&quot;es02.oldboylinux.com&quot;</span>]</span><br><span class="line">cluster.initial_master_nodes: [<span class="string">&quot;es01.oldboylinux.com&quot;</span>]</span><br></pre></td></tr></table></figure>
 
 <h2 id="5-3-node2-es02配置文件"><a href="#5-3-node2-es02配置文件" class="headerlink" title="5.3 node2-es02配置文件:"></a>5.3 node2-es02配置文件:</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">cluster.name: oldboy_linux_es</span><br><span class="line">node.name: es02.oldboylinux.com</span><br><span class="line">path.data: /var/lib/elasticsearch</span><br><span class="line">path.logs: /var/<span class="built_in">log</span>/elasticsearch</span><br><span class="line">bootstrap.memory_lock: <span class="literal">true</span></span><br><span class="line">network.host: 10.0.0.81,127.0.0.1</span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.seed_hosts: [<span class="string">&quot;es01.oldboylinux.com&quot;</span>,<span class="string">&quot;es02.oldboylinux.com&quot;</span>]</span><br><span class="line">cluster.initial_master_nodes: [<span class="string">&quot;es01.oldboylinux.com&quot;</span>]</span><br><span class="line"></span><br><span class="line">cat&gt; /etc/elasticsearch/elasticsearch.yml &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">cluster.name: oldboy_linux</span></span><br><span class="line"><span class="string">node.name: node-2</span></span><br><span class="line"><span class="string">path.data: /var/lib/elasticsearch</span></span><br><span class="line"><span class="string">path.logs: /var/log/elasticsearch</span></span><br><span class="line"><span class="string">bootstrap.memory_lock: true</span></span><br><span class="line"><span class="string">network.host: 127.0.0.1,10.0.0.52</span></span><br><span class="line"><span class="string">http.port: 9200</span></span><br><span class="line"><span class="string">discovery.seed_hosts: [&quot;10.0.0.51&quot;,&quot;10.0.0.52&quot;]</span></span><br><span class="line"><span class="string">cluster.initial_master_nodes: [&quot;10.0.0.51&quot;]</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
@@ -218,7 +222,7 @@
 <h2 id="7-查看日志"><a href="#7-查看日志" class="headerlink" title="7.查看日志"></a>7.查看日志</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#集群故障日志</span></span><br><span class="line">tail -f /var/<span class="built_in">log</span>/elasticsearch/集群名字.<span class="built_in">log</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#es服务相关日志</span></span><br><span class="line">/var/<span class="built_in">log</span>/elasticsearch/elasticsearch.log</span><br></pre></td></tr></table></figure>
 
 <h2 id="8-检查集群"><a href="#8-检查集群" class="headerlink" title="8.检查集群"></a>8.检查集群</h2><p><em>ES-head查看是否有2个节点</em></p>
-<p><img src="ELK.assets/A8CE600330CE40719BFEF90593BA7080" alt="img"></p>
+<p><img src="%E6%A8%A1%E6%9D%BF.assets/A8CE600330CE40719BFEF90593BA7080" alt="img"></p>
 <p><em>kibana 写入数据</em></p>
 <h2 id="9-集群注意事项"><a href="#9-集群注意事项" class="headerlink" title="9.集群注意事项"></a>9.集群注意事项</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#01</span></span><br><span class="line">1.插入和读取数据在任意节点都可以执行,效果一样</span><br><span class="line">2.es-head可以连接集群内任一台服务</span><br><span class="line"></span><br><span class="line"><span class="comment">#03.主节点负责读写</span></span><br><span class="line">如果主分片所在的节点坏掉了,副本分片会升为主分片</span><br><span class="line"></span><br><span class="line"><span class="comment">#04.主节点负责调度</span></span><br><span class="line">如果主节点坏掉了,数据节点会自动升为主节点</span><br><span class="line"></span><br><span class="line"><span class="comment">#05.通讯端口</span></span><br><span class="line">默认会有2个通讯端口：9200和9300</span><br><span class="line">9300并没有在配置文件里配置过</span><br><span class="line">如果开启了防火墙并且没有放开9300端口，那么集群通讯就会失败</span><br></pre></td></tr></table></figure>
 
@@ -232,7 +236,7 @@
 <h2 id="5-添加节点注意"><a href="#5-添加节点注意" class="headerlink" title="5.添加节点注意"></a>5.添加节点注意</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#对于新添加的节点来说: </span></span><br><span class="line"><span class="comment">##只需要直到集群内任意一个节点的IP和他自己本身的IP即可</span></span><br><span class="line">discovery.seed_hosts: [<span class="string">&quot;10.0.0.82&quot;</span>,<span class="string">&quot;10.0.0.81&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#对于以前的节点来说:</span></span><br><span class="line">什么都不需要更改</span><br></pre></td></tr></table></figure>
 
 <h2 id="6-数据分片颜色解释"><a href="#6-数据分片颜色解释" class="headerlink" title="6.数据分片颜色解释"></a>6.数据分片颜色解释</h2><p><em>紫色: 正在迁移<br>黄色: 正在复制<br>绿色: 正常</em></p>
-<p><img src="ELK.assets/AD0E5D7A575D47788F2698284F3F0808" alt="img">    </p>
+<p><img src="%E6%A8%A1%E6%9D%BF.assets/AD0E5D7A575D47788F2698284F3F0808" alt="img">    </p>
 <h2 id="7-集群故障转移实验"><a href="#7-集群故障转移实验" class="headerlink" title="7.集群故障转移实验"></a>7.集群故障转移实验</h2><p><em>1.停掉主节点，观察集群是否正常<br>2.停掉主节点，是否还会选举出新的主节点<br>3.停掉主节点，数据分片的分布会不会发生变化，分片状态会不会发生变化<br>4.停掉主节点，然后在持续的写入数据，等节点恢复之后，会如何处理落后的数据<br>5.3个节点的Elasticsearch集群，极限情况下最多允许坏几台?<br>6.主节点故障，集群健康状态发生什么变化？</em></p>
 <p><strong>结论：</strong></p>
 <p><em><strong>##01 竞选机制<br>1.如果主节点坏掉了，会从活着的数据节点中选出一台新的主节点</strong></em></p>
@@ -242,6 +246,12 @@
 <p><em><strong>##05 最低节点数量<br>5.7.x版本之后则必须至少2个节点存活集群才能正常工作</strong></em></p>
 <p><em><strong>##06 如果中间节点挂了,其他的节点可能无法恢复 需要在配置中添加所有的节点</strong></em></p>
 ]]></content>
+      <categories>
+        <category>ELK -</category>
+      </categories>
+      <tags>
+        <tag>ELK -</tag>
+      </tags>
   </entry>
   <entry>
     <title>Linux用户管理</title>
