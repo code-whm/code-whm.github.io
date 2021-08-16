@@ -697,10 +697,10 @@
 
 ]]></content>
       <categories>
-        <category>Doker -</category>
+        <category>Docker -</category>
       </categories>
       <tags>
-        <tag>Doker -</tag>
+        <tag>Docker -</tag>
       </tags>
   </entry>
   <entry>
@@ -1045,7 +1045,8 @@
   <entry>
     <title>docker镜像常用命令</title>
     <url>/2021/08/16/docker%E9%95%9C%E5%83%8F%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4(1)/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="一-docker常用命令概述"><a href="#一-docker常用命令概述" class="headerlink" title="一.docker常用命令概述"></a>一.docker常用命令概述</h1><h2 id="1-docker命令的使用方法"><a href="#1-docker命令的使用方法" class="headerlink" title="1.docker命令的使用方法"></a>1.docker命令的使用方法</h2><figure class="highlight autoit"><table><tr><td class="code"><pre><span class="line">如下图所示，对应的是docker命令的使用方法。</span><br><span class="line"></span><br><span class="line">root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker</span></span><br></pre></td></tr></table></figure>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="一-docker常用命令概述"><a href="#一-docker常用命令概述" class="headerlink" title="一.docker常用命令概述"></a>一.docker常用命令概述</h1><span id="more"></span>
+<h2 id="1-docker命令的使用方法"><a href="#1-docker命令的使用方法" class="headerlink" title="1.docker命令的使用方法"></a>1.docker命令的使用方法</h2><figure class="highlight autoit"><table><tr><td class="code"><pre><span class="line">如下图所示，对应的是docker命令的使用方法。</span><br><span class="line"></span><br><span class="line">root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker</span></span><br></pre></td></tr></table></figure>
 
 <p><img src="https://note.youdao.com/yws/api/personal/file/WEBa1b09cd4e8367cff954da5894fd62145?method=download&shareKey=b79e77e15aae2b5c0eb95265453925bf" alt="image-20210609213405422"></p>
 <h2 id="2-查看docker子命令的帮助信息"><a href="#2-查看docker子命令的帮助信息" class="headerlink" title="2.查看docker子命令的帮助信息"></a>2.查看docker子命令的帮助信息</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">如下图所示，我们可以查看docker命令的帮助信息哟<span class="operator">~</span></span><br><span class="line"></span><br><span class="line">root<span class="variable">@docker201</span>.oldboyedu.com <span class="operator">~</span>]# docker <span class="keyword">search</span> <span class="comment">--help</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
