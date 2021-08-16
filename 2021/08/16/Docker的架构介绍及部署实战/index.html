@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.Docker架构分析123456如下图所示，Docker采用的是 Client&#x2F;Server 架构。客户端向服务器发送请求，服务器负责构建、运行和分发容器。　　客户端和服务器可以运行在同一个 Host 上，客户端也可以通过socket或 REST API与远程的服务器通信。　　　　推荐阅读:	https:&#x2F;&#x2F;docs.docker.com&#x2F;get-started&#x2F;overview&#x2F;   1.C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker的架构介绍及部署实战">
+<meta property="og:url" content="http://example.com/2021/08/16/Docker%E7%9A%84%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%83%A8%E7%BD%B2%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="Lucifer">
+<meta property="og:description" content="一.Docker架构分析123456如下图所示，Docker采用的是 Client&#x2F;Server 架构。客户端向服务器发送请求，服务器负责构建、运行和分发容器。　　客户端和服务器可以运行在同一个 Host 上，客户端也可以通过socket或 REST API与远程的服务器通信。　　　　推荐阅读:	https:&#x2F;&#x2F;docs.docker.com&#x2F;get-started&#x2F;overview&#x2F;   1.C">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBa01bc568b09ac5222e8645fb75df6d01?method=download&shareKey=49155e3956c3635a15254339ce2332a7">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBa2dca432a23a34bf51e0cb222e0b10a9?method=download&shareKey=2771ec0ea3561d364fb9c4f25cdc0c4e">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBc326e984db898a397b4bf7f6344bc087?method=download&shareKey=1d02f5bdfca71f0f817a5597b3ab67be">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB11f8ff602a8566ed36e000515ede16b1?method=download&shareKey=68879421244c1cfe332ac2553111b81f">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBf6c3528b72d292911894bbc9870fef5d?method=download&shareKey=99086b4d84fdddd4d37f77212b7bb952">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB6bcc5a2697f963c65c8465b964cd5496?method=download&shareKey=7945584776dbc4cc4e10f100ef5444da">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBa972a0a843128890cc870365f1efd248?method=download&shareKey=d9c896e47d73771c6647529a8d88a43b">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBc6c43750a805917820329fbe2a0c2785?method=download&shareKey=2e409065dd18acfc18c2bdd84f424aa1">
+<meta property="article:published_time" content="2021-08-16T14:19:48.000Z">
+<meta property="article:modified_time" content="2021-08-16T14:44:57.000Z">
+<meta property="article:author" content="MING">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://note.youdao.com/yws/api/personal/file/WEBa01bc568b09ac5222e8645fb75df6d01?method=download&shareKey=49155e3956c3635a15254339ce2332a7">
+
+<link rel="canonical" href="http://example.com/2021/08/16/Docker%E7%9A%84%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%83%A8%E7%BD%B2%E5%AE%9E%E6%88%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Docker的架构介绍及部署实战 | Lucifer</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lucifer</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">且将新火试新茶，诗酒趁年华。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">14</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/16/Docker%E7%9A%84%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%83%A8%E7%BD%B2%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="MING">
+      <meta itemprop="description" content="Son of the morning star">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lucifer">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker的架构介绍及部署实战
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-16 22:19:48 / 修改时间：22:44:57" itemprop="dateCreated datePublished" datetime="2021-08-16T22:19:48+08:00">2021-08-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%91%E8%AE%A1%E7%AE%97/" itemprop="url" rel="index"><span itemprop="name">云计算</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一-Docker架构分析"><a href="#一-Docker架构分析" class="headerlink" title="一.Docker架构分析"></a>一.Docker架构分析</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，Docker采用的是 Client/Server 架构。客户端向服务器发送请求，服务器负责构建、运行和分发容器。</span><br><span class="line"></span><br><span class="line">　　客户端和服务器可以运行在同一个 Host 上，客户端也可以通过socket或 REST API与远程的服务器通信。</span><br><span class="line">　　</span><br><span class="line">　　推荐阅读:</span><br><span class="line">	https:<span class="regexp">//</span>docs.docker.com<span class="regexp">/get-started/</span>overview/</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa01bc568b09ac5222e8645fb75df6d01?method=download&shareKey=49155e3956c3635a15254339ce2332a7" alt="img"></p>
+<h2 id="1-Client"><a href="#1-Client" class="headerlink" title="1.Client"></a>1.Client</h2><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">　　Docker客户端，最常用的Docker客户端是docker命令。通过docker我们可以方便地在Host上构建和运行容器。</span><br><span class="line">　　    </span><br><span class="line">　　docker支持很多操作(docker命令行工具)，用户也可以通过REST API与服务器通信。</span><br><span class="line">　　    </span><br><span class="line">　　Client和Docker daemon通信可使用<span class="keyword">https</span>/<span class="keyword">http</span>协议进行通信，为了安全起见，默认使用的就是<span class="keyword">https</span>协议。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-Docker-Host"><a href="#2-Docker-Host" class="headerlink" title="2.Docker-Host"></a>2.Docker-Host</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Docker daemon： 　</span><br><span class="line">　　　　Docker daemon是服务器组件，即Docker守护进程服务器，以Linux后台服务的方式运行。</span><br><span class="line">　　　　Docker daemon运行在Docker host上，负责创建、运行、监控容器，构建、存储镜像。默认配置下，Docker daemon只能响应来自本地Host的客户端请求。如果要允许远程客户端请求，需要在配置文件中打开TCP监听（支持IPV4和IPV6）。</span><br><span class="line">       </span><br><span class="line">　　Containers： 　　</span><br><span class="line">　　　　Docker容器，用于加载Docker镜像。换句话说，Docker容器就是Docker镜像的运行实例。我们知道镜像(Image)是只读的，在启动一个Container时，其实就是基于Image来新建一个专用的可写仓供用户使用。</span><br><span class="line">       </span><br><span class="line">　　Image： 　　</span><br><span class="line">　　　　可将Docker镜像看成只读模板(它类似于虚拟机使用的ISO镜像文件)，通过它可以创建Docker容器。例如某个镜像可能包含一个Ubuntu操作系统、一个Apache HTTP Server以及用户开发的Web应用。</span><br><span class="line">　　　　镜像有多种生成方法：</span><br><span class="line">　　　　　　(<span class="number">1</span>)可以从无到有开始创建镜像；</span><br><span class="line">　　　　　　(<span class="number">2</span>)也可以下载并使用别人创建好的现成的镜像</span><br><span class="line">　　　　　　(<span class="number">3</span>)还可以在现有镜像上创建新的镜像</span><br><span class="line">　　　　　　(<span class="number">4</span>)我们可以将镜像的内容和创建步骤描述在一个文本文件中，这个文件被称作Dockerfile，通过执行docker build &lt;docker-file&gt;命令可以构建出Docker镜像。</span><br><span class="line">　　　　公开的镜像仓库有很多种，如下所示: </span><br><span class="line">　　　　　　Docker官方镜像地址：</span><br><span class="line">　　　　　　　　https:<span class="regexp">//</span>hub.docker.com/。</span><br><span class="line">　　　　　　阿里的docker镜像地址：</span><br><span class="line">　　　　　　　　https:<span class="regexp">//mi</span>rrors.aliyun.com<span class="regexp">/docker-ce/</span>linux/</span><br><span class="line">　　　　　　清华大学docker镜像地址：</span><br><span class="line">　　　　　　 https:<span class="regexp">//mi</span>rrors.tuna.tsinghua.edu.cn<span class="regexp">/docker-ce/</span></span><br><span class="line"></span><br><span class="line">　　温馨提示:</span><br><span class="line">　　　　生产环境中，我们通常在公司内部部署有私有镜像仓库。如使用Harbor，Docker Registry等等。在后续的文章我们会逐一对其进行讲解。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-Registry"><a href="#3-Registry" class="headerlink" title="3.Registry"></a>3.Registry</h2><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">我们去构建镜像时，镜像做好之后应该有一个统一存放位置，我们称之为Docker仓库，Registry是存放Docker镜像的仓库（官方默认仓库在<span class="string">&quot;https://hub.docker.com&quot;</span>），Registry分私有和公有两种。</span><br><span class="line"></span><br><span class="line">Images和Registry之间默认使用的时https协议，当然如果你非要指定为<span class="keyword">http</span>协议也是可以的。</span><br><span class="line"></span><br><span class="line">启动容器时，docker daemon会试图从本地获取相关的镜像；本地镜像不存在时，其将从Registry中下载该镜像并保存到本地。　　</span><br><span class="line"></span><br><span class="line">Registry用于保存docker镜像，包括镜像的层次结构和元数据。用户可自建Registry，也可使用官方的Docker Hub。　　</span><br><span class="line"></span><br><span class="line">Docker Registry中的镜像通常由开发人员制作，而后推送至<span class="string">&quot;公共&quot;</span>或<span class="string">&quot;私有&quot;</span>Registry上保存，供其它人员使用，例如<span class="string">&quot;部署&quot;</span>到生产环境。</span><br><span class="line"></span><br><span class="line">Docker Registry可分为以下几类:　　　　</span><br><span class="line">　　　　Sponsor Registry:</span><br><span class="line">　　　　　　第三方的<span class="keyword">registry</span>，供客户端和Docker社区使用。　　　　</span><br><span class="line">　　　　Mirror Registry:</span><br><span class="line">　　　　　　第三方的<span class="keyword">registry</span>，只让客户使用。　　　　</span><br><span class="line">　　　　Vendor Registry:</span><br><span class="line">　　　　　　由发布Docker镜像的供应商提供的<span class="keyword">registry</span>。　　　　</span><br><span class="line">　　　　Private Registry:</span><br><span class="line">　　　　　　通过设有防火墙和额外的安全层的私有实体提供的<span class="keyword">registry</span>。　　</span><br><span class="line"></span><br><span class="line">Registry包括Repository和Index，详细说明如下：　　　　</span><br><span class="line">	Repository:　　　　　　</span><br><span class="line">		由某特定的docker镜像的所有迭代版本组成的镜像仓库；</span><br><span class="line">		一个Registry中可以存在多个Repository：　　　　　　　　</span><br><span class="line">		Repository可分为<span class="string">&quot;顶层仓库&quot;</span>和<span class="string">&quot;用户仓库&quot;</span>；　　　　　　　　</span><br><span class="line">		用户仓库名称格式为<span class="string">&quot;用户名/仓库名&quot;</span>。　　　　　　</span><br><span class="line">		每个仓库可以包含多个Tag(标签)，每个标签对应一个镜像；　　　　</span><br><span class="line">	Index：　　　　　　</span><br><span class="line">		维护用户账户，镜像的校验以及公共命名空间的信息；　　　　　　</span><br><span class="line">		相当于为Registry提供了一个完成用户认证等功能的检索接口。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-镜像名称判断"><a href="#4-镜像名称判断" class="headerlink" title="4.镜像名称判断"></a>4.镜像名称判断</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">官方仓库:</span><br><span class="line">	官方镜像:</span><br><span class="line">       	nginx:<span class="number">1.20</span>.<span class="number">1</span></span><br><span class="line">       用户上传镜像:</span><br><span class="line">       	jasonyin2020/oldboyedu_birds:v1</span><br><span class="line">       	</span><br><span class="line">第三方仓库:</span><br><span class="line">	用户上传镜像:</span><br><span class="line">		tuv7rqqq.mirror.aliyuncs.com<span class="regexp">/library/</span>nginx:latest</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa2dca432a23a34bf51e0cb222e0b10a9?method=download&shareKey=2771ec0ea3561d364fb9c4f25cdc0c4e" alt="image-20210609221448005"></p>
+<h2 id="5-docker、containerd的关系"><a href="#5-docker、containerd的关系" class="headerlink" title="5.docker、containerd的关系"></a>5.docker、containerd的关系</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">为了防止docker一家独大，docker当年的实现被拆分出了几个标准化的模块，标准化的目的是模块是可被其他实现替换的，不由任何一个厂商控制。</span><br><span class="line"></span><br><span class="line">docker由docker-client,dockerd,containerd,docker-shim,runc组成，所以containerd是docker的基础组件之一，下面是从containerd引过来的一张图。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">推荐阅读:</span><br><span class="line">	https:<span class="regexp">//</span>containerd.io/</span><br><span class="line">	https:<span class="regexp">//</span>cloud.tencent.com<span class="regexp">/document/</span>product<span class="regexp">/457/</span><span class="number">35747</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBc326e984db898a397b4bf7f6344bc087?method=download&shareKey=1d02f5bdfca71f0f817a5597b3ab67be" alt="image-20210624151140220"></p>
+<h1 id="二-部署docker环境"><a href="#二-部署docker环境" class="headerlink" title="二.部署docker环境"></a>二.部署docker环境</h1><h2 id="1-关闭并禁用防火墙"><a href="#1-关闭并禁用防火墙" class="headerlink" title="1.关闭并禁用防火墙"></a>1.关闭并禁用防火墙</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># systemctl stop firewalld</span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># systemctl disable firewalld</span></span><br><span class="line">Removed symlink <span class="regexp">/etc/</span>systemd<span class="regexp">/system/mu</span>lti-user.target.wants/firewalld.service.</span><br><span class="line">Removed symlink <span class="regexp">/etc/</span>systemd<span class="regexp">/system/</span>dbus-org.fedoraproject.FirewallD1.service.</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-停用并禁用selinux"><a href="#2-停用并禁用selinux" class="headerlink" title="2.停用并禁用selinux"></a>2.停用并禁用selinux</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># getenforce </span></span><br><span class="line">Enforcing</span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># setenforce 0</span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># grep ^SELINUX= /etc/selinux/config</span></span><br><span class="line">SELINUX=enforcing</span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># sed -ri s<span class="string">&#x27;#(SELINUX=)enforcing#\1disabled#&#x27;</span> /etc/selinux/config</span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># grep ^SELINUX= /etc/selinux/config</span></span><br><span class="line">SELINUX=disabled</span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-卸载docker较旧的依赖项-如果您的操作系统是刚刚安装完成的状态，或者当前服务器没有安装过docker环境，则可以跳过该步骤"><a href="#3-卸载docker较旧的依赖项-如果您的操作系统是刚刚安装完成的状态，或者当前服务器没有安装过docker环境，则可以跳过该步骤" class="headerlink" title="3.卸载docker较旧的依赖项(如果您的操作系统是刚刚安装完成的状态，或者当前服务器没有安装过docker环境，则可以跳过该步骤)"></a>3.卸载docker较旧的依赖项(如果您的操作系统是刚刚安装完成的状态，或者当前服务器没有安装过docker环境，则可以跳过该步骤)</h2><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yum -y remove docker docker-<span class="keyword">client</span> docker-<span class="keyword">client</span>-latest docker-<span class="keyword">common</span> docker-lastest docker-lastest-logrotate docker-logrotate  docker-engine</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">　　(<span class="number">1</span>)现在将Docker Engine软件包称为docker-ce，较旧的Docker Engine版本称为docker或docker-engine。如果已安装这些程序，请卸载它们以及相关的依赖项，因为新老docker版本并不相互兼容哟;</span><br><span class="line">　　(<span class="number">2</span>)如果您在之前没有安装过docker环境，则无需做当前步骤，如果您非要做该步骤，可能会出现如下图所示的情况，属于正常现象！</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB11f8ff602a8566ed36e000515ede16b1?method=download&shareKey=68879421244c1cfe332ac2553111b81f" alt="image-20210608230633881"></p>
+<h2 id="4-Docker-engine常见的安装方法概述"><a href="#4-Docker-engine常见的安装方法概述" class="headerlink" title="4.Docker engine常见的安装方法概述"></a>4.Docker engine常见的安装方法概述</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">您可以根据需要以不同的方式安装<span class="selector-tag">Docker</span> <span class="selector-tag">Engine</span>：</span><br><span class="line">　　　　(<span class="number">1</span>)大多数用户会 设置<span class="selector-tag">Docker</span>的存储库并从中进行安装，以简化安装和升级任务。这是推荐的方法。</span><br><span class="line">　　　　(<span class="number">2</span>)一些用户下载并手动安装<span class="selector-tag">RPM</span>软件包，并完全手动管理升级。这在诸如在无法访问互联网的空白系统上安装<span class="selector-tag">Docker</span>的情况下非常有用。</span><br><span class="line">　　　　(<span class="number">3</span>)在测试和开发环境中，一些用户选择使用自动便利脚本来安装<span class="selector-tag">Docker</span>。　　</span><br><span class="line">　　　　</span><br><span class="line">　　　　温馨提示:　　　　</span><br><span class="line">　　　　	本篇博客是基于存储库(需要配置软件源)的方式进行安装，即在新主机上首次安装<span class="selector-tag">Docker</span> <span class="selector-tag">Engine</span>之前，需要设置<span class="selector-tag">Docker</span>存储库。之后，您可以从存储库安装和更新<span class="selector-tag">Docker</span>。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-切换国内的软件源-本案例切换的是阿里源，当然，您也可以考虑使用其它的公网软件源哟"><a href="#5-切换国内的软件源-本案例切换的是阿里源，当然，您也可以考虑使用其它的公网软件源哟" class="headerlink" title="5.切换国内的软件源(本案例切换的是阿里源，当然，您也可以考虑使用其它的公网软件源哟)"></a>5.切换国内的软件源(本案例切换的是阿里源，当然，您也可以考虑使用其它的公网软件源哟)</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)备份CentOS官网的软件源</span><br><span class="line">mv <span class="regexp">/etc/yum</span>.repos.d<span class="regexp">/CentOS-Base.repo /</span>etc<span class="regexp">/yum.repos.d/</span>CentOS-Base.repo.backup</span><br><span class="line"></span><br><span class="line">(<span class="number">2</span>)下载阿里云的软件源</span><br><span class="line">curl -o <span class="regexp">/etc/yum</span>.repos.d<span class="regexp">/CentOS-Base.repo https:/</span><span class="regexp">/mirrors.aliyun.com/</span>repo/Centos-<span class="number">7</span>.repo </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">(<span class="number">3</span>)非阿里云ESC产品推荐操作该步骤</span><br><span class="line">sed -i -e <span class="string">&#x27;/mirrors.cloud.aliyuncs.com/d&#x27;</span> -e <span class="string">&#x27;/mirrors.aliyuncs.com/d&#x27;</span> <span class="regexp">/etc/yum</span>.repos.d/CentOS-Base.repo</span><br><span class="line"></span><br><span class="line">(<span class="number">4</span>)生成本地缓存</span><br><span class="line">yum makecache</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">　　上述的sed命令是可选操作，因为非阿里云ECS用户会出现<span class="string">&quot;Could not resolve host: mirrors.cloud.aliyuncs.com; Unknown error&quot;</span>信息，不影响使用。</span><br><span class="line"></span><br><span class="line">参考链接: 　　</span><br><span class="line">　　https:<span class="regexp">//</span>developer.aliyun.com<span class="regexp">/mirror/</span>centos</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-配置docker-ce的软件源-也称为”存储库”"><a href="#6-配置docker-ce的软件源-也称为”存储库”" class="headerlink" title="6.配置docker-ce的软件源(也称为”存储库”)"></a>6.配置docker-ce的软件源(也称为”存储库”)</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)添加docker-ce的软件源</span><br><span class="line">	yum -y install yum-utils</span><br><span class="line">	yum-config-manager --add-repo https:<span class="regexp">//mi</span>rrors.aliyun.com<span class="regexp">/docker-ce/</span>linux<span class="regexp">/centos/</span>docker-ce.repo</span><br><span class="line">	</span><br><span class="line">(<span class="number">2</span>)官方软件源默认启用了最新的软件，您可以通过编辑软件源的方式获取各个版本的软件包。例如官方并没有将测试版本的软件源置为可用，您可以通过以下方式开启。同理可以开启各种测试版本等。</span><br><span class="line">	yum-config-manager --enable docker-ce-test  <span class="comment"># 可选操作，若不启用并不影响安装docker-ce。</span></span><br><span class="line">	yum-config-manager --enable docker-ce-nightly  <span class="comment"># 可选操作</span></span><br><span class="line"></span><br><span class="line">(<span class="number">3</span>)如果您启用了多个Docker存储库，则在未在yum installor yum update命令中指定版本的情况下进行安装或更新将始终安装可能的最高版本，这可能不适合您的稳定性需求，这个时候我们也可以来禁用最新的软件源哟~</span><br><span class="line">	yum-config-manager --disable docker-ce-test</span><br><span class="line">	yum-config-manager --disable docker-ce-nightly</span><br><span class="line">	</span><br><span class="line">参考链接:</span><br><span class="line">　　https:<span class="regexp">//</span>developer.aliyun.com<span class="regexp">/mirror/</span>docker-ce</span><br><span class="line">　　https:<span class="regexp">//</span>docs.docker.com<span class="regexp">/engine/i</span>nstall<span class="regexp">/centos/</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="7-安装Docker-Engine和容器"><a href="#7-安装Docker-Engine和容器" class="headerlink" title="7.安装Docker Engine和容器"></a>7.安装Docker Engine和容器</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)若不指定安装的docker版本，则默认安装最新版本的Docker Engine和容器</span><br><span class="line">	yum -<span class="keyword">y</span> install docker-<span class="keyword">ce</span> docker-<span class="keyword">ce</span>-cli containerd.io</span><br><span class="line"></span><br><span class="line">(<span class="number">2</span>)要安装特定版本的Docker Engine，请在存储库中列出可用版本，然后选择并安装。返回的列表取决于启用的存储库，并且特定于您的CentOS版本（.el7此示例中的后缀表示）</span><br><span class="line">	yum <span class="keyword">list</span> docker-<span class="keyword">ce</span> --showduplicates | <span class="keyword">sort</span> -r</span><br><span class="line">	</span><br><span class="line">(<span class="number">3</span>)通过其完全合格的软件包名称安装特定版本，该软件包名称是软件包名称（docker-<span class="keyword">ce</span>）加上版本字符串（第二列），从第一个冒号（:）一直到第一个连字符，并用连字符（-）分隔。其语法格式如下所示。</span><br><span class="line">	yum install docker-<span class="keyword">ce</span>-<span class="symbol">&lt;VERSION_STRING&gt;</span> docker-<span class="keyword">ce</span>-cli-<span class="symbol">&lt;VERSION_STRING&gt;</span> containerd.io  # 安装特定docker版本的语法格式，下面有对应的案例哟~</span><br><span class="line">	yum install docker-<span class="keyword">ce</span>-<span class="number">20.10</span>.<span class="number">7</span> docker-<span class="keyword">ce</span>-cli-<span class="number">20.10</span>.<span class="number">7</span> containerd.io</span><br><span class="line">	</span><br><span class="line">温馨提示:</span><br><span class="line">	(<span class="number">1</span>)此处我安装了指定的版本，我们可以将<span class="string">&quot;/etc/yum.conf&quot;</span>的<span class="string">&quot;keepcache&quot;</span>进行缓存即可。</span><br><span class="line">	(<span class="number">2</span>)将rpm包进行打包下发到其他节点</span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# <span class="built_in">mkdir</span> docker_rpm_20.<span class="number">10</span></span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# </span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# <span class="keyword">find</span> /var/cache/yum/ -<span class="built_in">type</span> <span class="keyword">f</span> -name <span class="string">&quot;*.rpm&quot;</span> | xargs mv -t docker_rpm_20.<span class="number">10</span></span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# </span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# </span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# tar zcf docker_rpm_20.<span class="number">10</span>.tar.gz docker_rpm_20.<span class="number">10</span></span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# </span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# <span class="keyword">ll</span> -h</span><br><span class="line">        总用量 <span class="number">109</span>M</span><br><span class="line">        drwxr-xr-<span class="keyword">x</span>. <span class="number">2</span> root root <span class="number">4.0</span>K <span class="number">6</span>月   <span class="number">9</span> <span class="number">21</span>:<span class="number">00</span> docker_rpm_20.<span class="number">10</span></span><br><span class="line">        -rw-r--r--. <span class="number">1</span> root root <span class="number">109</span>M <span class="number">6</span>月   <span class="number">9</span> <span class="number">21</span>:<span class="number">01</span> docker_rpm_20.<span class="number">10</span>.tar.gz</span><br><span class="line">        [root@docker201.oldboyedu.<span class="keyword">com</span> ~]# </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="8-启动docker守护进程并设置开机自启动"><a href="#8-启动docker守护进程并设置开机自启动" class="headerlink" title="8.启动docker守护进程并设置开机自启动"></a>8.启动docker守护进程并设置开机自启动</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># systemctl start docker</span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># systemctl enable docker</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="9-查看docker的概要信息"><a href="#9-查看docker的概要信息" class="headerlink" title="9.查看docker的概要信息"></a>9.查看docker的概要信息</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker info</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBf6c3528b72d292911894bbc9870fef5d?method=download&shareKey=99086b4d84fdddd4d37f77212b7bb952" alt="image-20210609004903141"></p>
+<h2 id="10-修改docker-engine的默认Registry，建议使用国内的镜像仓库，国外的源网络会延迟较大"><a href="#10-修改docker-engine的默认Registry，建议使用国内的镜像仓库，国外的源网络会延迟较大" class="headerlink" title="10.修改docker engine的默认Registry，建议使用国内的镜像仓库，国外的源网络会延迟较大"></a>10.修改docker engine的默认Registry，建议使用国内的镜像仓库，国外的源网络会延迟较大</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># tee /etc/docker/daemon.json &lt;&lt;-<span class="string">&#x27;EOF&#x27;</span></span></span><br><span class="line">&gt; &#123;</span><br><span class="line">&gt; <span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://tuv7rqqq.mirror.aliyuncs.com&quot;</span>]</span><br><span class="line">&gt; &#125;</span><br><span class="line">&gt; EOF</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://tuv7rqqq.mirror.aliyuncs.com&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># cat /etc/docker/daemon.json </span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://tuv7rqqq.mirror.aliyuncs.com&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># systemctl daemon-reload</span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># systemctl restart docker</span></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># </span></span><br><span class="line"></span><br><span class="line">参考链接:</span><br><span class="line">　　https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB6bcc5a2697f963c65c8465b964cd5496?method=download&shareKey=7945584776dbc4cc4e10f100ef5444da" alt="image-20210609005632041"></p>
+<h1 id="三-dockers命令自动补全-新手必备"><a href="#三-dockers命令自动补全-新手必备" class="headerlink" title="三.dockers命令自动补全(新手必备)"></a>三.dockers命令自动补全(新手必备)</h1><h2 id="1-为啥能自动补全"><a href="#1-为啥能自动补全" class="headerlink" title="1.为啥能自动补全"></a>1.为啥能自动补全</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Linux系统许多命令都会提供该命令自身的命令补齐脚本，在安装命令时会自动安装自动补齐脚本，如果有的话，该机制在Linux中被称为bash-complete。</span><br><span class="line"></span><br><span class="line">如下图所示，在<span class="regexp">/usr/</span>share<span class="regexp">/bash-completion/</span>completions/ 目录下有许多命令自动补齐的脚本，我们已经安装了docker环境。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa972a0a843128890cc870365f1efd248?method=download&shareKey=d9c896e47d73771c6647529a8d88a43b" alt="image-20210609230730489"></p>
+<h2 id="2-安装相关依赖包"><a href="#2-安装相关依赖包" class="headerlink" title="2.安装相关依赖包"></a>2.安装相关依赖包</h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum -y install bash-completion</span><br><span class="line"></span><br><span class="line"><span class="keyword">source</span> <span class="regexp">/usr/</span>share<span class="regexp">/bash-completion/</span>bash_completion</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-验证补全功能"><a href="#3-验证补全功能" class="headerlink" title="3.验证补全功能"></a>3.验证补全功能</h2><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，当我们输入子命令不知道该如何是好的时候，就可以连续按两下<span class="string">&quot;tab&quot;</span>键即可。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBc6c43750a805917820329fbe2a0c2785?method=download&shareKey=2e409065dd18acfc18c2bdd84f424aa1" alt="img">)</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>MING
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/2021/08/16/Docker%E7%9A%84%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%83%A8%E7%BD%B2%E5%AE%9E%E6%88%98/" title="Docker的架构介绍及部署实战">http://example.com/2021/08/16/Docker的架构介绍及部署实战/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/16/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%92%8C%E4%BA%91%E8%AE%A1%E7%AE%97%E7%9A%84%E5%8C%BA%E5%88%AB/" rel="prev" title="虚拟化和云计算的区别">
+      <i class="fa fa-chevron-left"></i> 虚拟化和云计算的区别
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/16/ELk1/" rel="next" title="ELK">
+      ELK <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-Docker%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">一.Docker架构分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Client"><span class="nav-number">1.1.</span> <span class="nav-text">1.Client</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Docker-Host"><span class="nav-number">1.2.</span> <span class="nav-text">2.Docker-Host</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Registry"><span class="nav-number">1.3.</span> <span class="nav-text">3.Registry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E9%95%9C%E5%83%8F%E5%90%8D%E7%A7%B0%E5%88%A4%E6%96%AD"><span class="nav-number">1.4.</span> <span class="nav-text">4.镜像名称判断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-docker%E3%80%81containerd%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.5.</span> <span class="nav-text">5.docker、containerd的关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-%E9%83%A8%E7%BD%B2docker%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">二.部署docker环境</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%85%B3%E9%97%AD%E5%B9%B6%E7%A6%81%E7%94%A8%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">2.1.</span> <span class="nav-text">1.关闭并禁用防火墙</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%81%9C%E7%94%A8%E5%B9%B6%E7%A6%81%E7%94%A8selinux"><span class="nav-number">2.2.</span> <span class="nav-text">2.停用并禁用selinux</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%8D%B8%E8%BD%BDdocker%E8%BE%83%E6%97%A7%E7%9A%84%E4%BE%9D%E8%B5%96%E9%A1%B9-%E5%A6%82%E6%9E%9C%E6%82%A8%E7%9A%84%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%98%AF%E5%88%9A%E5%88%9A%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90%E7%9A%84%E7%8A%B6%E6%80%81%EF%BC%8C%E6%88%96%E8%80%85%E5%BD%93%E5%89%8D%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85%E8%BF%87docker%E7%8E%AF%E5%A2%83%EF%BC%8C%E5%88%99%E5%8F%AF%E4%BB%A5%E8%B7%B3%E8%BF%87%E8%AF%A5%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.3.</span> <span class="nav-text">3.卸载docker较旧的依赖项(如果您的操作系统是刚刚安装完成的状态，或者当前服务器没有安装过docker环境，则可以跳过该步骤)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Docker-engine%E5%B8%B8%E8%A7%81%E7%9A%84%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95%E6%A6%82%E8%BF%B0"><span class="nav-number">2.4.</span> <span class="nav-text">4.Docker engine常见的安装方法概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%88%87%E6%8D%A2%E5%9B%BD%E5%86%85%E7%9A%84%E8%BD%AF%E4%BB%B6%E6%BA%90-%E6%9C%AC%E6%A1%88%E4%BE%8B%E5%88%87%E6%8D%A2%E7%9A%84%E6%98%AF%E9%98%BF%E9%87%8C%E6%BA%90%EF%BC%8C%E5%BD%93%E7%84%B6%EF%BC%8C%E6%82%A8%E4%B9%9F%E5%8F%AF%E4%BB%A5%E8%80%83%E8%99%91%E4%BD%BF%E7%94%A8%E5%85%B6%E5%AE%83%E7%9A%84%E5%85%AC%E7%BD%91%E8%BD%AF%E4%BB%B6%E6%BA%90%E5%93%9F"><span class="nav-number">2.5.</span> <span class="nav-text">5.切换国内的软件源(本案例切换的是阿里源，当然，您也可以考虑使用其它的公网软件源哟)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E9%85%8D%E7%BD%AEdocker-ce%E7%9A%84%E8%BD%AF%E4%BB%B6%E6%BA%90-%E4%B9%9F%E7%A7%B0%E4%B8%BA%E2%80%9D%E5%AD%98%E5%82%A8%E5%BA%93%E2%80%9D"><span class="nav-number">2.6.</span> <span class="nav-text">6.配置docker-ce的软件源(也称为”存储库”)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%AE%89%E8%A3%85Docker-Engine%E5%92%8C%E5%AE%B9%E5%99%A8"><span class="nav-number">2.7.</span> <span class="nav-text">7.安装Docker Engine和容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%90%AF%E5%8A%A8docker%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B%E5%B9%B6%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%8A%A8"><span class="nav-number">2.8.</span> <span class="nav-text">8.启动docker守护进程并设置开机自启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%9F%A5%E7%9C%8Bdocker%E7%9A%84%E6%A6%82%E8%A6%81%E4%BF%A1%E6%81%AF"><span class="nav-number">2.9.</span> <span class="nav-text">9.查看docker的概要信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E4%BF%AE%E6%94%B9docker-engine%E7%9A%84%E9%BB%98%E8%AE%A4Registry%EF%BC%8C%E5%BB%BA%E8%AE%AE%E4%BD%BF%E7%94%A8%E5%9B%BD%E5%86%85%E7%9A%84%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%EF%BC%8C%E5%9B%BD%E5%A4%96%E7%9A%84%E6%BA%90%E7%BD%91%E7%BB%9C%E4%BC%9A%E5%BB%B6%E8%BF%9F%E8%BE%83%E5%A4%A7"><span class="nav-number">2.10.</span> <span class="nav-text">10.修改docker engine的默认Registry，建议使用国内的镜像仓库，国外的源网络会延迟较大</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89-dockers%E5%91%BD%E4%BB%A4%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8-%E6%96%B0%E6%89%8B%E5%BF%85%E5%A4%87"><span class="nav-number">3.</span> <span class="nav-text">三.dockers命令自动补全(新手必备)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%B8%BA%E5%95%A5%E8%83%BD%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">3.1.</span> <span class="nav-text">1.为啥能自动补全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85%E7%9B%B8%E5%85%B3%E4%BE%9D%E8%B5%96%E5%8C%85"><span class="nav-number">3.2.</span> <span class="nav-text">2.安装相关依赖包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%AA%8C%E8%AF%81%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">3.3.</span> <span class="nav-text">3.验证补全功能</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="MING"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">MING</p>
+  <div class="site-description" itemprop="description">Son of the morning star</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=491294233&auto=1&height=66"></iframe>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1844449888&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MING</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

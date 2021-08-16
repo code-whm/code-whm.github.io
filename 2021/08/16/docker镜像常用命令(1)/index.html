@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.docker常用命令概述1.docker命令的使用方法123如下图所示，对应的是docker命令的使用方法。root@docker201.oldboyedu.com ~]# docker   2.查看docker子命令的帮助信息1234如下图所示，我们可以查看docker命令的帮助信息哟~root@docker201.oldboyedu.com ~]# docker search --help">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker镜像常用命令">
+<meta property="og:url" content="http://example.com/2021/08/16/docker%E9%95%9C%E5%83%8F%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4(1)/index.html">
+<meta property="og:site_name" content="Lucifer">
+<meta property="og:description" content="一.docker常用命令概述1.docker命令的使用方法123如下图所示，对应的是docker命令的使用方法。root@docker201.oldboyedu.com ~]# docker   2.查看docker子命令的帮助信息1234如下图所示，我们可以查看docker命令的帮助信息哟~root@docker201.oldboyedu.com ~]# docker search --help">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBa1b09cd4e8367cff954da5894fd62145?method=download&shareKey=b79e77e15aae2b5c0eb95265453925bf">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB6e05b6635d195f21b94e1d8f640d1cb7?method=download&shareKey=974002314d9cfbb8263faf9e53cf84d0">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBb0e3f973d439eba1eef3db8cfb1062cb?method=download&shareKey=23f3fb4eff247598f7b54f8a47ebfcdc">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBaaa2c96612a58cef5deb98e155635c7f?method=download&shareKey=f1c2441038068a631fd4a29b68fd9040">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBfce8b97916ed696de7356e76ee0bc9d3?method=download&shareKey=12be685d09ee3c80a504e63e14650a8a">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB83aa1364dcf8b67a47486ce846338194?method=download&shareKey=feeeb9254f51a80eecdab20ee3184217">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB792460399beee2a5e441a474626151e3?method=download&shareKey=7a1a43b230e1e236e9dea135ec6216bf">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB626ccb680756386d7f9c08e5e912cc2c?method=download&shareKey=a0517324a685e303c0b3b8051d85bc80">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB98eda67f056a6b51e47dfa1f93ac94da?method=download&shareKey=90dca910bd88fe01bf9e7b358c29b1d5">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBc3f8a54d9320315c7f7ff5c5442baa72?method=download&shareKey=c23168b37d24ef706578dfd95065874d">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBb4cfc8c013b11809d5b2cafd8f768f76?method=download&shareKey=bbf931b6eaf86df870c85747556a1945">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBdd07e56007d4e20ed0796223213c22fb?method=download&shareKey=e5b489a02a2be0070d56640c9ae3145d">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB14a2c2d450069aa8557b4d4651cde152?method=download&shareKey=291fdf5664cded2e6a4545140031da07">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBf9169889087fb0b58b1b2bb4758b31fd?method=download&shareKey=0279059f27439fce1252af6baf0740cc">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBc318f490aef27748b0be3970515c13c8?method=download&shareKey=52bf1d33ba0e9668d5f9254505cb768e">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB4bc9b0ac34f5e1893979ba4e6d8b29e5?method=download&shareKey=d32997c9e0e92f62c48a6903272c54c6">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB0ff6f2fc014e3a2bc9392b49102d81d5?method=download&shareKey=6869c3f127ec541ab17f846906f263a4">
+<meta property="article:published_time" content="2021-08-16T15:02:13.000Z">
+<meta property="article:modified_time" content="2021-08-16T15:33:36.061Z">
+<meta property="article:author" content="MING">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://note.youdao.com/yws/api/personal/file/WEBa1b09cd4e8367cff954da5894fd62145?method=download&shareKey=b79e77e15aae2b5c0eb95265453925bf">
+
+<link rel="canonical" href="http://example.com/2021/08/16/docker%E9%95%9C%E5%83%8F%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4(1)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>docker镜像常用命令 | Lucifer</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lucifer</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">且将新火试新茶，诗酒趁年华。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">14</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/16/docker%E9%95%9C%E5%83%8F%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="MING">
+      <meta itemprop="description" content="Son of the morning star">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lucifer">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker镜像常用命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-16 23:02:13 / 修改时间：23:33:36" itemprop="dateCreated datePublished" datetime="2021-08-16T23:02:13+08:00">2021-08-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%91%E8%AE%A1%E7%AE%97/" itemprop="url" rel="index"><span itemprop="name">云计算</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一-docker常用命令概述"><a href="#一-docker常用命令概述" class="headerlink" title="一.docker常用命令概述"></a>一.docker常用命令概述</h1><h2 id="1-docker命令的使用方法"><a href="#1-docker命令的使用方法" class="headerlink" title="1.docker命令的使用方法"></a>1.docker命令的使用方法</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，对应的是docker命令的使用方法。</span><br><span class="line"></span><br><span class="line">root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa1b09cd4e8367cff954da5894fd62145?method=download&shareKey=b79e77e15aae2b5c0eb95265453925bf" alt="image-20210609213405422"></p>
+<h2 id="2-查看docker子命令的帮助信息"><a href="#2-查看docker子命令的帮助信息" class="headerlink" title="2.查看docker子命令的帮助信息"></a>2.查看docker子命令的帮助信息</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，我们可以查看docker命令的帮助信息哟<span class="operator">~</span></span><br><span class="line"></span><br><span class="line">root<span class="variable">@docker201</span>.oldboyedu.com <span class="operator">~</span>]# docker <span class="keyword">search</span> <span class="comment">--help</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB6e05b6635d195f21b94e1d8f640d1cb7?method=download&shareKey=974002314d9cfbb8263faf9e53cf84d0" alt="image-20210609214340268"></p>
+<h2 id="3-镜像管理命令概述"><a href="#3-镜像管理命令概述" class="headerlink" title="3.镜像管理命令概述"></a>3.镜像管理命令概述</h2><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，不难发现<span class="string">&quot;docker image ls&quot;</span>和<span class="string">&quot;docker images&quot;</span>的效果是一样的。<span class="string">&quot;docker image pull&quot;</span>和<span class="string">&quot;docker pull&quot;</span>效果是相同的。</span><br><span class="line"></span><br><span class="line">后者是较老docker版本者的使用习惯，有关镜像管理命令由于历史性原因保留了两种用法。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBb0e3f973d439eba1eef3db8cfb1062cb?method=download&shareKey=23f3fb4eff247598f7b54f8a47ebfcdc" alt="image-20210609223402204"></p>
+<h1 id="二-生产环境中常用的-docker镜像相关指令"><a href="#二-生产环境中常用的-docker镜像相关指令" class="headerlink" title="二.生产环境中常用的 docker镜像相关指令"></a>二.生产环境中常用的 docker镜像相关指令</h1><h2 id="1-搜索docker镜像-search"><a href="#1-搜索docker镜像-search" class="headerlink" title="1.搜索docker镜像(search)"></a>1.搜索docker镜像(search)</h2><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]<span class="meta"># docker search mysql</span></span><br><span class="line"></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="meta"># docker search mysql --limit 5</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">搜索效果如下图所示，其提供了五个字段，分别代表的含义解释如下:</span><br><span class="line"><span class="symbol">	NAME:</span></span><br><span class="line">		镜像的名称。</span><br><span class="line"><span class="symbol">	</span></span><br><span class="line"><span class="symbol">	DESCRIPTION:</span></span><br><span class="line">    	镜像的描述信息。</span><br><span class="line"><span class="symbol">    	</span></span><br><span class="line"><span class="symbol">    STARS:</span></span><br><span class="line">    	镜像的星星数量，星星越多，说明受欢迎度越高哟~</span><br><span class="line"><span class="symbol">    	</span></span><br><span class="line"><span class="symbol">    OFFICIAL:</span></span><br><span class="line">    	该镜像是否是官方发布。</span><br><span class="line">    	</span><br><span class="line">    AUTOMATED</span><br><span class="line">		该镜像是否支持支持自动化构建功能。</span><br><span class="line">		</span><br><span class="line">温馨提示:</span><br><span class="line">	(<span class="number">1</span>)选镜像时建议优先考虑官方(OFFICIAL)和星星(STARS)数量较多的镜像，官方镜像仓库地址如下所示:</span><br><span class="line">	hub.docker.com</span><br><span class="line">	(<span class="number">2</span>)关于自动化构建，此处建议先战略性跳过，感兴趣的小伙伴可参考以下连接哟;</span><br><span class="line"><span class="symbol">	https:</span><span class="comment">//docs.docker.com/docker-hub/builds/</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBaaa2c96612a58cef5deb98e155635c7f?method=download&shareKey=f1c2441038068a631fd4a29b68fd9040" alt="image-20210609215802087"></p>
+<h2 id="2-下载镜像-pull"><a href="#2-下载镜像-pull" class="headerlink" title="2.下载镜像(pull)"></a>2.下载镜像(pull)</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker pull nginx:1.20.1</span></span><br><span class="line"></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker pull nginx</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBfce8b97916ed696de7356e76ee0bc9d3?method=download&shareKey=12be685d09ee3c80a504e63e14650a8a" alt="image-20210609222829366"></p>
+<h2 id="3-上传镜像-push，先战略性跳过"><a href="#3-上传镜像-push，先战略性跳过" class="headerlink" title="3.上传镜像(push，先战略性跳过)"></a>3.上传镜像(push，先战略性跳过)</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在后面构建镜像仓库的时候讲解，此处战略性跳过。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-查看本地镜像列表-ls"><a href="#4-查看本地镜像列表-ls" class="headerlink" title="4.查看本地镜像列表(ls)"></a>4.查看本地镜像列表(ls)</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker images</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB83aa1364dcf8b67a47486ce846338194?method=download&shareKey=feeeb9254f51a80eecdab20ee3184217" alt="image-20210609224007741"></p>
+<h2 id="5-导出镜像-save"><a href="#5-导出镜像-save" class="headerlink" title="5.导出镜像(save)"></a>5.导出镜像(save)</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker save nginx:1.20.1 -o oldboyedu_docker_nginx.tar.gz</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	如下图所示，我们可以基于镜像的ID从而导出指定的镜像。我不推荐这样做，因为导入镜像的时候会发现镜像名称和其版本号均为<span class="string">&quot;&lt;none&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB792460399beee2a5e441a474626151e3?method=download&shareKey=7a1a43b230e1e236e9dea135ec6216bf" alt="image-20210609224811160"></p>
+<h2 id="6-删除镜像-rm"><a href="#6-删除镜像-rm" class="headerlink" title="6.删除镜像(rm)"></a>6.删除镜像(rm)</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker<span class="number">201.</span>oldboyedu.com ~]<span class="attr"># docker rmi 993</span>ef<span class="number">3592</span>f<span class="number">66</span>温馨提示:	<span class="comment">(1)</span>我们可以基于镜像的ID来删除指定的镜像文件，当然，也可以基于镜像名称和TAG编号一起删除;	<span class="comment">(2)</span>很明显<span class="string">&quot;docker image rm&quot;</span>有<span class="string">&quot;docker rmi&quot;</span>,<span class="string">&quot;docker remove&quot;</span>多个别名哟;	<span class="comment">(3)</span>使用<span class="string">&quot;docker rm&quot;</span>删除的是容器哟，而非镜像;	<span class="comment">(4)</span>想要批量删除镜像，可以先停止docker服务，然后将<span class="string">&quot;/var/lib/docker/*&quot;</span>目录全部删除，这意味着对docker进行初始化操作，因为它意味着删除了所有数据，该操作是不可逆的。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB626ccb680756386d7f9c08e5e912cc2c?method=download&shareKey=a0517324a685e303c0b3b8051d85bc80" alt="image-20210609231702768"></p>
+<h2 id="7-导入镜像-load"><a href="#7-导入镜像-load" class="headerlink" title="7.导入镜像(load)"></a>7.导入镜像(load)</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker image load -i oldboyedu_docker_nginx.tar.gz </span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB98eda67f056a6b51e47dfa1f93ac94da?method=download&shareKey=90dca910bd88fe01bf9e7b358c29b1d5" alt="image-20210609232131913"></p>
+<h2 id="8-导入镜像-import"><a href="#8-导入镜像-import" class="headerlink" title="8.导入镜像(import)"></a>8.导入镜像(import)</h2><figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，使用<span class="keyword">import</span>指令也可以导入镜像，但都没有名字哟~	请先允许我买个关子哈，后面给大家介绍一下它的妙用哟！</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBc3f8a54d9320315c7f7ff5c5442baa72?method=download&shareKey=c23168b37d24ef706578dfd95065874d" alt="image-20210609234235462"></p>
+<h2 id="9-打标签-tag"><a href="#9-打标签-tag" class="headerlink" title="9.打标签(tag)"></a>9.打标签(tag)</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，我们可以为一个镜像打多个标签哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBb4cfc8c013b11809d5b2cafd8f768f76?method=download&shareKey=bbf931b6eaf86df870c85747556a1945" alt="image-20210610000547806"></p>
+<h2 id="10-清除无效镜像-prune"><a href="#10-清除无效镜像-prune" class="headerlink" title="10.清除无效镜像(prune)"></a>10.清除无效镜像(prune)</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，我们可以清理无效的镜像。所谓的无效的镜像我们指的就是没有镜像名称和标签的。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBdd07e56007d4e20ed0796223213c22fb?method=download&shareKey=e5b489a02a2be0070d56640c9ae3145d" alt="image-20210610000922663"></p>
+<h2 id="11-构建镜像-build，战略性跳过"><a href="#11-构建镜像-build，战略性跳过" class="headerlink" title="11.构建镜像(build，战略性跳过)"></a>11.构建镜像(build，战略性跳过)</h2><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image <span class="keyword">build </span>-t oldboyedu_dockerfile_xiaoniao:<span class="built_in">v1</span> .</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB14a2c2d450069aa8557b4d4651cde152?method=download&shareKey=291fdf5664cded2e6a4545140031da07" alt="image-20210616224136999"></p>
+<h2 id="12-查看构建历史-history，战略性跳过"><a href="#12-查看构建历史-history，战略性跳过" class="headerlink" title="12.查看构建历史(history，战略性跳过)"></a>12.查看构建历史(history，战略性跳过)</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image <span class="keyword">history</span> cento<span class="variable">s:7</span> --<span class="keyword">no</span>-<span class="built_in">trunc</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBf9169889087fb0b58b1b2bb4758b31fd?method=download&shareKey=0279059f27439fce1252af6baf0740cc" alt="image-20210616235412627"></p>
+<h2 id="13-查看镜像属性-inspect，战略性跳过"><a href="#13-查看镜像属性-inspect，战略性跳过" class="headerlink" title="13.查看镜像属性(inspect，战略性跳过)"></a>13.查看镜像属性(inspect，战略性跳过)</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">后期会补，此处先跳过。</span><br></pre></td></tr></table></figure>
+
+<h1 id="三-课堂练习"><a href="#三-课堂练习" class="headerlink" title="三.课堂练习"></a>三.课堂练习</h1><h2 id="1-批量导入镜像"><a href="#1-批量导入镜像" class="headerlink" title="1.批量导入镜像"></a>1.批量导入镜像</h2><h3 id="请批量导入镜像"><a href="#请批量导入镜像" class="headerlink" title="请批量导入镜像"></a>请批量导入镜像</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，以oldboyedu开头的都是我提前打包好的镜像，请批量完成打包操作。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBc318f490aef27748b0be3970515c13c8?method=download&shareKey=52bf1d33ba0e9668d5f9254505cb768e" alt="image-20210610004039213"></p>
+<h3 id="参考案例"><a href="#参考案例" class="headerlink" title="参考案例"></a>参考案例</h3><figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]# <span class="keyword">for</span> <span class="keyword">image</span> <span class="keyword">in</span> <span class="string">`ls *.tar.gz`</span>; <span class="keyword">do</span> docker load -i $image; done</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB4bc9b0ac34f5e1893979ba4e6d8b29e5?method=download&shareKey=d32997c9e0e92f62c48a6903272c54c6" alt="image-20210610004612153"></p>
+<h2 id="2-批量导出镜像"><a href="#2-批量导出镜像" class="headerlink" title="2.批量导出镜像"></a>2.批量导出镜像</h2><h3 id="请批量导出镜像"><a href="#请批量导出镜像" class="headerlink" title="请批量导出镜像"></a>请批量导出镜像</h3><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">请将上述案例的<span class="string">&quot;nginx:latest&quot;</span>和<span class="string">&quot;mysql:latest&quot;</span>两个软件包打包到同一个文件中。</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="参考案例-1"><a href="#参考案例-1" class="headerlink" title="参考案例"></a>参考案例</h3><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker save -o oldboyedu_docker_demo.tar.gz nginx:latest mysql:latest</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB0ff6f2fc014e3a2bc9392b49102d81d5?method=download&shareKey=6869c3f127ec541ab17f846906f263a4" alt="image-20210610005328968"></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>MING
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/2021/08/16/docker%E9%95%9C%E5%83%8F%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4(1)/" title="docker镜像常用命令">http://example.com/2021/08/16/docker镜像常用命令(1)/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/16/Linux%E5%AE%B9%E5%99%A8(Container)%E5%8F%91%E5%B1%95%E5%8F%B2/" rel="prev" title="Linux容器（Container）发展史">
+      <i class="fa fa-chevron-left"></i> Linux容器（Container）发展史
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一.docker常用命令概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-docker%E5%91%BD%E4%BB%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">1.docker命令的使用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%9F%A5%E7%9C%8Bdocker%E5%AD%90%E5%91%BD%E4%BB%A4%E7%9A%84%E5%B8%AE%E5%8A%A9%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.</span> <span class="nav-text">2.查看docker子命令的帮助信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4%E6%A6%82%E8%BF%B0"><span class="nav-number">1.3.</span> <span class="nav-text">3.镜像管理命令概述</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84-docker%E9%95%9C%E5%83%8F%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">二.生产环境中常用的 docker镜像相关指令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%90%9C%E7%B4%A2docker%E9%95%9C%E5%83%8F-search"><span class="nav-number">2.1.</span> <span class="nav-text">1.搜索docker镜像(search)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%B8%8B%E8%BD%BD%E9%95%9C%E5%83%8F-pull"><span class="nav-number">2.2.</span> <span class="nav-text">2.下载镜像(pull)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%B8%8A%E4%BC%A0%E9%95%9C%E5%83%8F-push%EF%BC%8C%E5%85%88%E6%88%98%E7%95%A5%E6%80%A7%E8%B7%B3%E8%BF%87"><span class="nav-number">2.3.</span> <span class="nav-text">3.上传镜像(push，先战略性跳过)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8F%E5%88%97%E8%A1%A8-ls"><span class="nav-number">2.4.</span> <span class="nav-text">4.查看本地镜像列表(ls)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%AF%BC%E5%87%BA%E9%95%9C%E5%83%8F-save"><span class="nav-number">2.5.</span> <span class="nav-text">5.导出镜像(save)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%88%A0%E9%99%A4%E9%95%9C%E5%83%8F-rm"><span class="nav-number">2.6.</span> <span class="nav-text">6.删除镜像(rm)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%AF%BC%E5%85%A5%E9%95%9C%E5%83%8F-load"><span class="nav-number">2.7.</span> <span class="nav-text">7.导入镜像(load)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%AF%BC%E5%85%A5%E9%95%9C%E5%83%8F-import"><span class="nav-number">2.8.</span> <span class="nav-text">8.导入镜像(import)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%89%93%E6%A0%87%E7%AD%BE-tag"><span class="nav-number">2.9.</span> <span class="nav-text">9.打标签(tag)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E6%B8%85%E9%99%A4%E6%97%A0%E6%95%88%E9%95%9C%E5%83%8F-prune"><span class="nav-number">2.10.</span> <span class="nav-text">10.清除无效镜像(prune)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F-build%EF%BC%8C%E6%88%98%E7%95%A5%E6%80%A7%E8%B7%B3%E8%BF%87"><span class="nav-number">2.11.</span> <span class="nav-text">11.构建镜像(build，战略性跳过)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-%E6%9F%A5%E7%9C%8B%E6%9E%84%E5%BB%BA%E5%8E%86%E5%8F%B2-history%EF%BC%8C%E6%88%98%E7%95%A5%E6%80%A7%E8%B7%B3%E8%BF%87"><span class="nav-number">2.12.</span> <span class="nav-text">12.查看构建历史(history，战略性跳过)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-%E6%9F%A5%E7%9C%8B%E9%95%9C%E5%83%8F%E5%B1%9E%E6%80%A7-inspect%EF%BC%8C%E6%88%98%E7%95%A5%E6%80%A7%E8%B7%B3%E8%BF%87"><span class="nav-number">2.13.</span> <span class="nav-text">13.查看镜像属性(inspect，战略性跳过)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89-%E8%AF%BE%E5%A0%82%E7%BB%83%E4%B9%A0"><span class="nav-number">3.</span> <span class="nav-text">三.课堂练习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5%E9%95%9C%E5%83%8F"><span class="nav-number">3.1.</span> <span class="nav-text">1.批量导入镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5%E9%95%9C%E5%83%8F"><span class="nav-number">3.1.1.</span> <span class="nav-text">请批量导入镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%A1%88%E4%BE%8B"><span class="nav-number">3.1.2.</span> <span class="nav-text">参考案例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%89%B9%E9%87%8F%E5%AF%BC%E5%87%BA%E9%95%9C%E5%83%8F"><span class="nav-number">3.2.</span> <span class="nav-text">2.批量导出镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%89%B9%E9%87%8F%E5%AF%BC%E5%87%BA%E9%95%9C%E5%83%8F"><span class="nav-number">3.2.1.</span> <span class="nav-text">请批量导出镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%A1%88%E4%BE%8B-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">参考案例</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="MING"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">MING</p>
+  <div class="site-description" itemprop="description">Son of the morning star</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=491294233&auto=1&height=66"></iframe>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1844449888&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MING</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
