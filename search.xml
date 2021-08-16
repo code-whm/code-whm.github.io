@@ -65,13 +65,6 @@
     <url>/2021/08/16/ELk1/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
 
-
-
-
-
-
-<script src='https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js'></script>
-
 <h1 id="第1章-Elasticsearch介绍"><a href="#第1章-Elasticsearch介绍" class="headerlink" title="第1章 Elasticsearch介绍"></a>第1章 Elasticsearch介绍</h1><h2 id="1-什么是Lucene"><a href="#1-什么是Lucene" class="headerlink" title="1.什么是Lucene"></a>1.什么是Lucene</h2><p><em>Lucene是一个高性能的java搜索引擎库,操作非常繁琐，需要具备java开发经验。</em><br><em>Elasticsearch是基于Lucene之上包装一层外壳，屏蔽了Lucene的复杂操作，即使不会java语言也可以快速上手</em></p>
 <span id="more"></span>
 
