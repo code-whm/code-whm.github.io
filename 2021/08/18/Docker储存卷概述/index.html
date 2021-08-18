@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.docker存储卷概述1.什么是存储卷1存储卷就是将宿主机的本地文件系统中存在的某个目录直接与容器内部的文件系统上的某一目录建立绑定关系。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker储存卷概述">
+<meta property="og:url" content="http://example.com/2021/08/18/Docker%E5%82%A8%E5%AD%98%E5%8D%B7%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="Lucifer">
+<meta property="og:description" content="一.docker存储卷概述1.什么是存储卷1存储卷就是将宿主机的本地文件系统中存在的某个目录直接与容器内部的文件系统上的某一目录建立绑定关系。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/DA59FE1ECAF1404D91B18661DA329454?method=download&shareKey=33dd7ad731f574dfa48b332f161ecca9">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/B24DEE89B42042CC896918DE03AFEEB5?method=download&shareKey=7b5e8e0baa12f61c993fdd55659584a5">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/56F3678D3D834CB0AE16DBBC8E4F317A?method=download&shareKey=b58837ff19789200595c4b867fcae377">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/D18114A3424D4795A2863B445E13505A?method=download&shareKey=e6fffc9e0c49f516ebf987c554125941">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/8EB27FFC58744D74BA5F0499E7FC58C5?method=download&shareKey=9fda364e87408cc27a520491790eef1c">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/7071ECC52E9042F68C22D66A44883296?method=download&amp;shareKey=7ee3e9ff69677d6be4544d840b525590">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/7E1C69742C0244C5AEA6C87A66C7D085?method=download&shareKey=30ec960096909c0b68c9c0b680f132da">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/75240C4D259F4AD08C79939BF9CE23C0?method=download&shareKey=661555dc41be51b90abb5d6555fe3cab">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/74414B219EFF4FAAB37E53A1B7AC2842?method=download&shareKey=8ac856b7dade7822eff1d76c33b744b3">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/9585DC7D42B843B5A0747A5E674D76EE?method=download&shareKey=90562a88c70e5c403ed5952113e742ec">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/BCBD993C436A4B359D0EEE7DA14B9B39?method=download&shareKey=5fd09310fbfa36aa65cb7a0112bb4dd0">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/030787724658440A9B1FC5C5612FE6E6?method=download&shareKey=58a75afe82b5ad983441f5bd4b64615d">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/3F58FE180E64457DBB0C5B7797D48C9B?method=download&shareKey=0d9f21d3d446b41f76e09ff2efe11683">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/1596EB11C9C34408BA1096FCA267F935?method=download&shareKey=137e63e8bf8c5595fb1eb14ba26da479">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/8025AB3E9D2B499F957CFF17EC867B5A?method=download&shareKey=3208f2fa80b111c141996d6279acc7d3">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/8F31C42E581740F292E980279DCC5978?method=download&shareKey=2277dd0769c0f03c7544f3dd684b9596">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/D0C05B6F2C0E4D87B7BE3B3A98B51BBA?method=download&shareKey=ffb790ef6f3be9851b02124c5a543c8e">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/6EB22D3CF7814C0FB9AA0742170775A2?method=download&shareKey=021e225b44f9159428d9719eac618111">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/782B7D902A264EBD8EC3CA4EF4C25CE4?method=download&shareKey=dc58fb05f936244c5118bd920ab0a209">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/F1312156C6F3426584545FC3A2B4FF32?method=download&shareKey=be0e5b9629a4a5eee6fac1ad308224c8">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/D95B166706B047488E707DD1F74E24DC?method=download&shareKey=b91b46a7d7a6181ce5bdfbbbf5460798">
+<meta property="article:published_time" content="2021-08-18T13:44:49.660Z">
+<meta property="article:modified_time" content="2021-08-18T13:44:15.000Z">
+<meta property="article:author" content="MING">
+<meta property="article:tag" content="Doker -">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://note.youdao.com/yws/api/personal/file/DA59FE1ECAF1404D91B18661DA329454?method=download&shareKey=33dd7ad731f574dfa48b332f161ecca9">
+
+<link rel="canonical" href="http://example.com/2021/08/18/Docker%E5%82%A8%E5%AD%98%E5%8D%B7%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Docker储存卷概述 | Lucifer</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lucifer</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">且将新火试新茶，诗酒趁年华。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">10</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">16</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/18/Docker%E5%82%A8%E5%AD%98%E5%8D%B7%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="MING">
+      <meta itemprop="description" content="Son of the morning star">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lucifer">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker储存卷概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-18 21:44:49 / 修改时间：21:44:15" itemprop="dateCreated datePublished" datetime="2021-08-18T21:44:49+08:00">2021-08-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Doker/" itemprop="url" rel="index"><span itemprop="name">Doker -</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一-docker存储卷概述"><a href="#一-docker存储卷概述" class="headerlink" title="一.docker存储卷概述"></a>一.docker存储卷概述</h1><h2 id="1-什么是存储卷"><a href="#1-什么是存储卷" class="headerlink" title="1.什么是存储卷"></a>1.什么是存储卷</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">存储卷就是将宿主机的本地文件系统中存在的某个目录直接与容器内部的文件系统上的某一目录建立绑定关系。</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h2 id="2-在容器创建测试文件，而后在宿主机查看器存储路径"><a href="#2-在容器创建测试文件，而后在宿主机查看器存储路径" class="headerlink" title="2.在容器创建测试文件，而后在宿主机查看器存储路径"></a>2.在容器创建测试文件，而后在宿主机查看器存储路径</h2><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，我们在容器创建测试文件，在宿主机查找时发现了<span class="number">2</span>个文件路径。</span><br><span class="line"></span><br><span class="line">我们需要进入的是包含<span class="string">&quot;merged&quot;</span>的路径哟<span class="symbol">~因为它才是真正存储容器的位置呢。</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/DA59FE1ECAF1404D91B18661DA329454?method=download&shareKey=33dd7ad731f574dfa48b332f161ecca9" alt="image-20210613120822148"></p>
+<h2 id="3-默认情况下，容器在宿主机存储的数据会随着容器的生命周期而消亡"><a href="#3-默认情况下，容器在宿主机存储的数据会随着容器的生命周期而消亡" class="headerlink" title="3.默认情况下，容器在宿主机存储的数据会随着容器的生命周期而消亡"></a>3.默认情况下，容器在宿主机存储的数据会随着容器的生命周期而消亡</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，当我们删除容器时，那也意味着在宿主机存储的数也随之删除。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/B24DEE89B42042CC896918DE03AFEEB5?method=download&shareKey=7b5e8e0baa12f61c993fdd55659584a5" alt="image-20210613124621520"></p>
+<h1 id="二-在宿主机中上传测试代码，观察容器是否能够正常提供服务"><a href="#二-在宿主机中上传测试代码，观察容器是否能够正常提供服务" class="headerlink" title="二.在宿主机中上传测试代码，观察容器是否能够正常提供服务"></a>二.在宿主机中上传测试代码，观察容器是否能够正常提供服务</h1><h2 id="1-安装依赖包环境"><a href="#1-安装依赖包环境" class="headerlink" title="1.安装依赖包环境"></a>1.安装依赖包环境</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># yum -y install unzip</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-创建测试的nginx容器"><a href="#2-创建测试的nginx容器" class="headerlink" title="2.创建测试的nginx容器"></a>2.创建测试的nginx容器</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker run -it -d -p 80:80 nginx:1.20.1 </span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/56F3678D3D834CB0AE16DBBC8E4F317A?method=download&shareKey=b58837ff19789200595c4b867fcae377" alt="image-20210613125456367"></p>
+<h2 id="3-将软件包上传到docker的宿主机目录"><a href="#3-将软件包上传到docker的宿主机目录" class="headerlink" title="3.将软件包上传到docker的宿主机目录"></a>3.将软件包上传到docker的宿主机目录</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com <span class="regexp">/var/</span>lib<span class="regexp">/docker/</span>overlay2<span class="regexp">/c8f3eaf1cba887b7370d1dd86521989a76f5d642a76c3b790111b42b05d0212e/m</span>erged<span class="regexp">/usr/</span>share<span class="regexp">/nginx/</span>html]<span class="comment"># unzip xiaoniaofeifei.zip </span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/D18114A3424D4795A2863B445E13505A?method=download&shareKey=e6fffc9e0c49f516ebf987c554125941" alt="image-20210613130158901"></p>
+<h2 id="4-测试软件包部署是否生效。"><a href="#4-测试软件包部署是否生效。" class="headerlink" title="4.测试软件包部署是否生效。"></a>4.测试软件包部署是否生效。</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker logs -f -n 5 3e755e41ce6f</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	你知道为什么使用<span class="string">&quot;docker logs&quot;</span>能在终端查看到日志吗？</span><br><span class="line">	想知道原因就得进到容器内查看<span class="string">&quot;/var/log/nginx&quot;</span>目录哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/8EB27FFC58744D74BA5F0499E7FC58C5?method=download&shareKey=9fda364e87408cc27a520491790eef1c" alt="image-20210613130933031"></p>
+<h2 id="5-课堂练习"><a href="#5-课堂练习" class="headerlink" title="5.课堂练习"></a>5.课堂练习</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">请思考除了使用上面的方式是否还有其它方式实现容器的代码更新呢？</span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	<span class="comment">(1)</span>使用<span class="string">&quot;docker container cp&quot;</span>指令，直接将代码拷贝到指定容器的指定目录;</span><br><span class="line">	<span class="comment">(2)</span>使用存储卷;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="三-基于存储卷的方式实现代码的更新"><a href="#三-基于存储卷的方式实现代码的更新" class="headerlink" title="三.基于存储卷的方式实现代码的更新"></a>三.基于存储卷的方式实现代码的更新</h1><h2 id="1-创建挂载源代码的目录及测试数据"><a href="#1-创建挂载源代码的目录及测试数据" class="headerlink" title="1.创建挂载源代码的目录及测试数据"></a>1.创建挂载源代码的目录及测试数据</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，将代码上传到指定的目录并解压。</span><br></pre></td></tr></table></figure>
+
+<img src="https://note.youdao.com/yws/api/personal/file/7071ECC52E9042F68C22D66A44883296?method=download&amp;shareKey=7ee3e9ff69677d6be4544d840b525590" alt="image-20210613132759874" style="zoom:200%;" />
+
+
+
+<h2 id="2-创建容器时挂载宿主机目录"><a href="#2-创建容器时挂载宿主机目录" class="headerlink" title="2.创建容器时挂载宿主机目录"></a>2.创建容器时挂载宿主机目录</h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]# docker container run -d -p <span class="number">8888</span>:<span class="number">80</span> -v <span class="regexp">/oldboy/</span>code:<span class="regexp">/usr/</span>share<span class="regexp">/nginx/</span>html nginx:<span class="number">1.20</span>.<span class="number">1</span> </span><br><span class="line"></span><br><span class="line">[root@docker201.oldboyedu.com ~]# docker container run -d -p <span class="number">9999</span>:<span class="number">80</span> -v <span class="regexp">/oldboy/</span>code:<span class="regexp">/usr/</span>share<span class="regexp">/nginx/</span>html nginx:<span class="number">1.20</span>.<span class="number">1</span> </span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	相比之前的方法，如果想要多个容器使用同一份数据，需要将同一份数据拷贝到多个不同的容器内部，而使用存储卷的方式，则无需拷贝多份数据啦。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/7E1C69742C0244C5AEA6C87A66C7D085?method=download&shareKey=30ec960096909c0b68c9c0b680f132da" alt="image-20210613134342301"></p>
+<h2 id="3-尝试修改宿主机代码，观察两个容器的变化"><a href="#3-尝试修改宿主机代码，观察两个容器的变化" class="headerlink" title="3.尝试修改宿主机代码，观察两个容器的变化"></a>3.尝试修改宿主机代码，观察两个容器的变化</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，根本无需重启容器，只需更改宿主机器的代码即可。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/75240C4D259F4AD08C79939BF9CE23C0?method=download&shareKey=661555dc41be51b90abb5d6555fe3cab" alt="image-20210613135357947"></p>
+<h2 id="4-多个容器使用存储卷的原理"><a href="#4-多个容器使用存储卷的原理" class="headerlink" title="4.多个容器使用存储卷的原理"></a>4.多个容器使用存储卷的原理</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，展示了多个容器使用同一个宿主机绝对路径的挂载原理。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/74414B219EFF4FAAB37E53A1B7AC2842?method=download&shareKey=8ac856b7dade7822eff1d76c33b744b3" alt="image-20210613141522517"></p>
+<h2 id="5-删除容器时宿主机的数据并不会被删除"><a href="#5-删除容器时宿主机的数据并不会被删除" class="headerlink" title="5.删除容器时宿主机的数据并不会被删除"></a>5.删除容器时宿主机的数据并不会被删除</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，当我们删除容器时，发现并不会一同删除挂载的存储卷。换句话说，就是不会删除宿主机的文件。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/9585DC7D42B843B5A0747A5E674D76EE?method=download&shareKey=90562a88c70e5c403ed5952113e742ec" alt="image-20210613141713206"></p>
+<h1 id="四-基于存储卷挂载（例如保存MySQL的数据）"><a href="#四-基于存储卷挂载（例如保存MySQL的数据）" class="headerlink" title="四.基于存储卷挂载（例如保存MySQL的数据）"></a>四.基于存储卷挂载（例如保存MySQL的数据）</h1><h2 id="1-创建存储卷"><a href="#1-创建存储卷" class="headerlink" title="1.创建存储卷"></a>1.创建存储卷</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker volume create oldboyedu</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	存储卷的默认存储路径位于<span class="string">&quot;/var/lib/docker/volumes&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/BCBD993C436A4B359D0EEE7DA14B9B39?method=download&shareKey=5fd09310fbfa36aa65cb7a0112bb4dd0" alt="image-20210613142925176"></p>
+<h2 id="2-使用存储卷挂载"><a href="#2-使用存储卷挂载" class="headerlink" title="2.使用存储卷挂载"></a>2.使用存储卷挂载</h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]# docker container run -it -d -p <span class="number">8888</span>:<span class="number">80</span> -v oldboyedu:<span class="regexp">/usr/</span>share<span class="regexp">/nginx/</span>html nginx:<span class="number">1.20</span>.<span class="number">1</span> </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/030787724658440A9B1FC5C5612FE6E6?method=download&shareKey=58a75afe82b5ad983441f5bd4b64615d" alt="image-20210613144202513"></p>
+<h2 id="3-删除容器时，存储卷的数据并不会丢失"><a href="#3-删除容器时，存储卷的数据并不会丢失" class="headerlink" title="3.删除容器时，存储卷的数据并不会丢失"></a>3.删除容器时，存储卷的数据并不会丢失</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，当我们删除容器时，存储卷中的数据并不会丢失！</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/3F58FE180E64457DBB0C5B7797D48C9B?method=download&shareKey=0d9f21d3d446b41f76e09ff2efe11683" alt="image-20210613144542740"></p>
+<h2 id="4-固定的卷名，也可以实现数据共享"><a href="#4-固定的卷名，也可以实现数据共享" class="headerlink" title="4.固定的卷名，也可以实现数据共享"></a>4.固定的卷名，也可以实现数据共享</h2><figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">数据卷的最强大的功能就是持久化数据，我们可以将多个容器挂载到同一个数据卷，从而实现了数据的共享。但有的容器并不支持挂载同一个目录，比如MySQL多实例的情况，如果指定的数据目录存在文件，则数据库会初始化失败哟。</span><br><span class="line"></span><br><span class="line">如下图所示，本篇案例演示的都是基于本地卷进行挂载，我们可以借助插件的方式帮咱们实现远程的数据挂载哟<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/1596EB11C9C34408BA1096FCA267F935?method=download&shareKey=137e63e8bf8c5595fb1eb14ba26da479" alt="image-20210613150225823"></p>
+<h2 id="5-关于存储卷的其它说明"><a href="#5-关于存储卷的其它说明" class="headerlink" title="5.关于存储卷的其它说明"></a>5.关于存储卷的其它说明</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果存储卷下面没有数据，它会将容器指定目录下的文件持久化到存储卷的数据目录下。</span><br><span class="line"></span><br><span class="line">如果存储卷下面有数据，它会把存储卷的数据目录挂载到容器的指定目录。</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="五-跟某个容器挂载所有相同的卷"><a href="#五-跟某个容器挂载所有相同的卷" class="headerlink" title="五.跟某个容器挂载所有相同的卷"></a>五.跟某个容器挂载所有相同的卷</h1><h2 id="1-创建一个测试卷"><a href="#1-创建一个测试卷" class="headerlink" title="1.创建一个测试卷"></a>1.创建一个测试卷</h2><figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># ll /oldboy/code/</span></span><br><span class="line">总用量 232</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 15329 </span>8月  <span class="number"> 2 </span>2014 2000.png</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 51562 </span>8月  <span class="number"> 2 </span>2014 21.js</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root  <span class="number"> 254 </span>8月  <span class="number"> 2 </span>2014 icon.png</span><br><span class="line">drwxr-xr-x<span class="number"> 2 </span>root root  <span class="number"> 102 </span>8月  <span class="number"> 8 </span>2014 img</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root <span class="number"> 3059 </span>6月 <span class="number"> 13 </span>13:58 index.html</span><br><span class="line">drwxr-xr-x<span class="number"> 7 </span>root root  <span class="number"> 171 </span>6月 <span class="number"> 13 </span>15:39 kod</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 63008 </span>8月  <span class="number"> 2 </span>2014 sound1.mp3</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 91014 </span>6月 <span class="number"> 13 </span>13:25 xiaoniaofeifei.zip</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># docker ps -a</span></span><br><span class="line">CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># docker run -d -p 80:80 -v /oldboy/code:/usr/share/nginx/html nginx:1.20.1 </span></span><br><span class="line">220264c94b193fa8f4eab215d4561e0f7664fed9f4eb92ebba101c4a89be200d</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># docker ps -a</span></span><br><span class="line">CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                               NAMES</span><br><span class="line">220264c94b19   nginx:1.20.1   &quot;/docker-entrypoint.…&quot;  <span class="number"> 4 </span>seconds ago   Up<span class="number"> 4 </span>seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp   priceless_euler</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-再次创建一个测试卷"><a href="#2-再次创建一个测试卷" class="headerlink" title="2.再次创建一个测试卷"></a>2.再次创建一个测试卷</h2><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># docker ps -a</span></span><br><span class="line">CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                               NAMES</span><br><span class="line"><span class="number">220264</span>c94b19   <span class="symbol">nginx:</span><span class="number">1.20</span>.<span class="number">1</span>   <span class="string">&quot;/docker-entrypoint.…&quot;</span>   <span class="number">4</span> seconds ago   Up <span class="number">4</span> seconds   0.0.0.0<span class="symbol">:</span><span class="number">80</span>-&gt;<span class="number">80</span>/tcp, ::<span class="symbol">:</span><span class="number">80</span>-&gt;<span class="number">80</span>/tcp   priceless_euler</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># docker run -d -p 8888:80 --volumes-from 220264c94b19 nginx:1.20.1 </span></span><br><span class="line">c4b4058ab33f7c40e04177c8b0a1872789780dd08f4d227eceda6eb7ffbc35f2</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># docker ps -a</span></span><br><span class="line">CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                   NAMES</span><br><span class="line">c4b4058ab33f   <span class="symbol">nginx:</span><span class="number">1.20</span>.<span class="number">1</span>   <span class="string">&quot;/docker-entrypoint.…&quot;</span>   <span class="number">2</span> seconds ago    Up <span class="number">2</span> seconds    0.0.0.0<span class="symbol">:</span><span class="number">8888</span>-&gt;<span class="number">80</span>/tcp, ::<span class="symbol">:</span><span class="number">8888</span>-&gt;<span class="number">80</span>/tcp   great_grothendieck</span><br><span class="line"><span class="number">220264</span>c94b19   <span class="symbol">nginx:</span><span class="number">1.20</span>.<span class="number">1</span>   <span class="string">&quot;/docker-entrypoint.…&quot;</span>   <span class="number">16</span> seconds ago   Up <span class="number">16</span> seconds   0.0.0.0<span class="symbol">:</span><span class="number">80</span>-&gt;<span class="number">80</span>/tcp, ::<span class="symbol">:</span><span class="number">80</span>-&gt;<span class="number">80</span>/tcp       priceless_euler</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-测试结果"><a href="#3-测试结果" class="headerlink" title="3.测试结果"></a>3.测试结果</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，分别访问两个容器暴露的端口，返回的结果却是一样的。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/8025AB3E9D2B499F957CFF17EC867B5A?method=download&shareKey=3208f2fa80b111c141996d6279acc7d3" alt="image-20210613172137918"></p>
+<h1 id="六-持久化数据到随机卷（适合保存变化的数据，例如日志文件）"><a href="#六-持久化数据到随机卷（适合保存变化的数据，例如日志文件）" class="headerlink" title="六.持久化数据到随机卷（适合保存变化的数据，例如日志文件）"></a>六.持久化数据到随机卷（适合保存变化的数据，例如日志文件）</h1><h2 id="1-创建随机卷来持久化容器的目录下的数据"><a href="#1-创建随机卷来持久化容器的目录下的数据" class="headerlink" title="1.创建随机卷来持久化容器的目录下的数据"></a>1.创建随机卷来持久化容器的目录下的数据</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，我们可以直接指定nginx的日志目录分别挂载不同的存储卷上。</span><br><span class="line"></span><br><span class="line"><span class="section">温馨提示:</span></span><br><span class="line">	静态的文件，可以共享。比如代码文件。</span><br><span class="line">	变化的文件，不能共享，需要单独保存。比如日志文件。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/8F31C42E581740F292E980279DCC5978?method=download&shareKey=2277dd0769c0f03c7544f3dd684b9596" alt="image-20210613160612142"></p>
+<h2 id="2-删除容器"><a href="#2-删除容器" class="headerlink" title="2.删除容器"></a>2.删除容器</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">如下图所示，当我们删除容器时，数据并未丢失哟。</span><br><span class="line"></span><br><span class="line"><span class="section">温馨提示:</span></span><br><span class="line">	下面的只是一个测试案例，不用在乎软连接，我只是为了测试一下效果。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/D0C05B6F2C0E4D87B7BE3B3A98B51BBA?method=download&shareKey=ffb790ef6f3be9851b02124c5a543c8e" alt="image-20210613162308624"></p>
+<h2 id="3-课堂练习"><a href="#3-课堂练习" class="headerlink" title="3.课堂练习"></a>3.课堂练习</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">只允许启动一个nginx容器，要求如下:</span></span><br><span class="line">	(1)访问8888端口，出现nginx默认的欢迎首页。</span><br><span class="line">	(2)访问8889端口，出现<span class="string">&quot;小鸟飞飞&quot;</span>。</span><br><span class="line">	</span><br><span class="line"><span class="section">温馨提示:</span></span><br><span class="line">	实现效果如下图所示。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/6EB22D3CF7814C0FB9AA0742170775A2?method=download&shareKey=021e225b44f9159428d9719eac618111" alt="image-20210613164524532"></p>
+<h1 id="七-课堂练习案例多种解法"><a href="#七-课堂练习案例多种解法" class="headerlink" title="七.课堂练习案例多种解法"></a>七.课堂练习案例多种解法</h1><h2 id="1-解法一"><a href="#1-解法一" class="headerlink" title="1.解法一"></a>1.解法一</h2><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)本地创建测试代码</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># ll /oldboy/code/</span></span><br><span class="line">总用量 <span class="number">232</span></span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">15329</span> <span class="number">8</span>月   <span class="number">2</span> <span class="number">2014</span> <span class="number">2000</span>.png</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">51562</span> <span class="number">8</span>月   <span class="number">2</span> <span class="number">2014</span> <span class="number">21</span>.js</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root   <span class="number">254</span> <span class="number">8</span>月   <span class="number">2</span> <span class="number">2014</span> icon.png</span><br><span class="line">drwxr-xr-x <span class="number">2</span> root root   <span class="number">102</span> <span class="number">8</span>月   <span class="number">8</span> <span class="number">2014</span> img</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root  <span class="number">3059</span> <span class="number">6</span>月  <span class="number">13</span> <span class="number">13</span><span class="symbol">:</span><span class="number">58</span> index.html</span><br><span class="line">drwxr-xr-x <span class="number">7</span> root root   <span class="number">171</span> <span class="number">6</span>月  <span class="number">13</span> <span class="number">15</span><span class="symbol">:</span><span class="number">39</span> kod</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">63008</span> <span class="number">8</span>月   <span class="number">2</span> <span class="number">2014</span> sound1.mp3</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">91014</span> <span class="number">6</span>月  <span class="number">13</span> <span class="number">13</span><span class="symbol">:</span><span class="number">25</span> xiaoniaofeifei.zip</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(<span class="number">2</span>)挂载本地目录到容器(但请不要覆盖nginx容器默认的代码文件，因为我们是要访问<span class="number">2</span>个站点目录)</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># docker run -d -p 8888:80 -p 9999:9999 -v /oldboy/code:/oldboyedu/code nginx:1.20.1 </span></span><br><span class="line"></span><br><span class="line">(<span class="number">3</span>)进入容器生成配置文件(由于没有vi命令，因此我们可以借助echo或者cat生成nginx的配置文件)</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># docker exec -it e634dfcc6248 bash</span></span><br><span class="line">root<span class="variable">@e634dfcc6248</span><span class="symbol">:/</span><span class="comment"># ls /oldboyedu/code/</span></span><br><span class="line"><span class="number">2000</span>.png  <span class="number">21</span>.js  icon.png  img	index.html  kod  sound1.mp3  xiaoniaofeifei.zip</span><br><span class="line">root<span class="variable">@e634dfcc6248</span><span class="symbol">:/</span><span class="comment"># </span></span><br><span class="line">root<span class="variable">@e634dfcc6248</span><span class="symbol">:/etc/nginx/conf</span>.d<span class="comment"># cat xiaoniao.conf </span></span><br><span class="line">    server &#123;</span><br><span class="line">      listen <span class="number">9999</span>;</span><br><span class="line">      server_name localhost;</span><br><span class="line">      location / &#123;</span><br><span class="line">        root /oldboyedu/code;</span><br><span class="line">        index index.html index.htm;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">root<span class="variable">@e634dfcc6248</span><span class="symbol">:/etc/nginx/conf</span>.d<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(<span class="number">4</span>)对nginx的配置文件进行测试</span><br><span class="line">root<span class="variable">@e634dfcc6248</span><span class="symbol">:/etc/nginx/conf</span>.d<span class="comment"># nginx -t</span></span><br><span class="line"><span class="symbol">nginx:</span> the configuration file /etc/nginx/nginx.conf syntax is ok</span><br><span class="line"><span class="symbol">nginx:</span> configuration file /etc/nginx/nginx.conf test is successful</span><br><span class="line">root<span class="variable">@e634dfcc6248</span><span class="symbol">:/etc/nginx/conf</span>.d<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(<span class="number">5</span>)重启nginx的配置文件</span><br><span class="line">[root<span class="variable">@docker201</span>.oldboyedu.com ~]<span class="comment"># docker container restart e634dfcc6248</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	有小伙伴可能会质疑，为啥我不用nginx的reload指令呢？的确进入到容器进行reload是是一个可行的方案哟，但不是所有的服务都得reload，比如tomcat就不支持reload指令哟。</span><br><span class="line">	综上所诉，我们上面演示的方法更加通用。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/782B7D902A264EBD8EC3CA4EF4C25CE4?method=download&shareKey=dc58fb05f936244c5118bd920ab0a209" alt="img"></p>
+<h2 id="2-解法二"><a href="#2-解法二" class="headerlink" title="2.解法二"></a>2.解法二</h2><figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">(1)本地创建测试代码</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># ll /oldboy/code/</span></span><br><span class="line">总用量 232</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 15329 </span>8月  <span class="number"> 2 </span>2014 2000.png</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 51562 </span>8月  <span class="number"> 2 </span>2014 21.js</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root  <span class="number"> 254 </span>8月  <span class="number"> 2 </span>2014 icon.png</span><br><span class="line">drwxr-xr-x<span class="number"> 2 </span>root root  <span class="number"> 102 </span>8月  <span class="number"> 8 </span>2014 img</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root <span class="number"> 3059 </span>6月 <span class="number"> 13 </span>13:58 index.html</span><br><span class="line">drwxr-xr-x<span class="number"> 7 </span>root root  <span class="number"> 171 </span>6月 <span class="number"> 13 </span>15:39 kod</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 63008 </span>8月  <span class="number"> 2 </span>2014 sound1.mp3</span><br><span class="line">-rw-r--r--<span class="number"> 1 </span>root root<span class="number"> 91014 </span>6月 <span class="number"> 13 </span>13:25 xiaoniaofeifei.zip</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(2)挂载本地目录到容器(但请不要覆盖nginx容器默认的代码文件，因为我们是要访问2个站点目录)</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># docker run -d -p 8888:80 -p 9999:9999 -v /oldboy/code:/oldboyedu/code nginx:1.20.1 </span></span><br><span class="line"></span><br><span class="line">(3)在宿主机上生成配置文件</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># vim xiaoniao.conf</span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># cat xiaoniao.conf</span></span><br><span class="line">    server &#123;</span><br><span class="line">      listen 9999;</span><br><span class="line">      server_name localhost;</span><br><span class="line">      location / &#123;</span><br><span class="line">        root /oldboyedu/code;</span><br><span class="line">        index index.html index.htm;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(3)将宿主机的配置文件拷贝到其他电脑上</span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># docker container cp xiaoniao.conf c5f11694d7d9:/etc/nginx/conf.d</span></span><br><span class="line"></span><br><span class="line">(4)重启容器</span><br><span class="line">	如下图所示，重启容器后，可以使用浏览器访问到相应的数据哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/F1312156C6F3426584545FC3A2B4FF32?method=download&shareKey=be0e5b9629a4a5eee6fac1ad308224c8" alt="image-20210613170047487"></p>
+<h2 id="3-解法三"><a href="#3-解法三" class="headerlink" title="3.解法三"></a>3.解法三</h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]# docker run -d -p <span class="number">8888</span>:<span class="number">80</span> -p <span class="number">9999</span>:<span class="number">9999</span> -v <span class="regexp">/root/</span>xiaoniao.conf:<span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>xiaoniao.conf -v <span class="regexp">/oldboy/</span>code:<span class="regexp">/oldboyedu/</span>code nginx:<span class="number">1.20</span>.<span class="number">1</span> </span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	理解了前面的两种解法后，第三种解法自然就明白了。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/D95B166706B047488E707DD1F74E24DC?method=download&shareKey=b91b46a7d7a6181ce5bdfbbbf5460798" alt="image-20210613170602173"></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>MING
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/2021/08/18/Docker%E5%82%A8%E5%AD%98%E5%8D%B7%E6%A6%82%E8%BF%B0/" title="Docker储存卷概述">http://example.com/2021/08/18/Docker储存卷概述/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Doker/" rel="tag"># Doker -</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/17/Linux%E5%AE%B9%E5%99%A8(Container)%E5%8F%91%E5%B1%95%E5%8F%B2/" rel="prev" title="Linux容器（Container）发展史">
+      <i class="fa fa-chevron-left"></i> Linux容器（Container）发展史
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-docker%E5%AD%98%E5%82%A8%E5%8D%B7%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一.docker存储卷概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%AD%98%E5%82%A8%E5%8D%B7"><span class="nav-number">1.1.</span> <span class="nav-text">1.什么是存储卷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%9C%A8%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%EF%BC%8C%E8%80%8C%E5%90%8E%E5%9C%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E6%9F%A5%E7%9C%8B%E5%99%A8%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84"><span class="nav-number">1.2.</span> <span class="nav-text">2.在容器创建测试文件，而后在宿主机查看器存储路径</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%BB%98%E8%AE%A4%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E5%AE%B9%E5%99%A8%E5%9C%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AD%98%E5%82%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E4%BC%9A%E9%9A%8F%E7%9D%80%E5%AE%B9%E5%99%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%80%8C%E6%B6%88%E4%BA%A1"><span class="nav-number">1.3.</span> <span class="nav-text">3.默认情况下，容器在宿主机存储的数据会随着容器的生命周期而消亡</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-%E5%9C%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%AD%E4%B8%8A%E4%BC%A0%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81%EF%BC%8C%E8%A7%82%E5%AF%9F%E5%AE%B9%E5%99%A8%E6%98%AF%E5%90%A6%E8%83%BD%E5%A4%9F%E6%AD%A3%E5%B8%B8%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.</span> <span class="nav-text">二.在宿主机中上传测试代码，观察容器是否能够正常提供服务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E5%8C%85%E7%8E%AF%E5%A2%83"><span class="nav-number">2.1.</span> <span class="nav-text">1.安装依赖包环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BA%E6%B5%8B%E8%AF%95%E7%9A%84nginx%E5%AE%B9%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">2.创建测试的nginx容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B0%86%E8%BD%AF%E4%BB%B6%E5%8C%85%E4%B8%8A%E4%BC%A0%E5%88%B0docker%E7%9A%84%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9B%AE%E5%BD%95"><span class="nav-number">2.3.</span> <span class="nav-text">3.将软件包上传到docker的宿主机目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%B5%8B%E8%AF%95%E8%BD%AF%E4%BB%B6%E5%8C%85%E9%83%A8%E7%BD%B2%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88%E3%80%82"><span class="nav-number">2.4.</span> <span class="nav-text">4.测试软件包部署是否生效。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%AF%BE%E5%A0%82%E7%BB%83%E4%B9%A0"><span class="nav-number">2.5.</span> <span class="nav-text">5.课堂练习</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89-%E5%9F%BA%E4%BA%8E%E5%AD%98%E5%82%A8%E5%8D%B7%E7%9A%84%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81%E7%9A%84%E6%9B%B4%E6%96%B0"><span class="nav-number">3.</span> <span class="nav-text">三.基于存储卷的方式实现代码的更新</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E6%8C%82%E8%BD%BD%E6%BA%90%E4%BB%A3%E7%A0%81%E7%9A%84%E7%9B%AE%E5%BD%95%E5%8F%8A%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE"><span class="nav-number">3.1.</span> <span class="nav-text">1.创建挂载源代码的目录及测试数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8%E6%97%B6%E6%8C%82%E8%BD%BD%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9B%AE%E5%BD%95"><span class="nav-number">3.2.</span> <span class="nav-text">2.创建容器时挂载宿主机目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B0%9D%E8%AF%95%E4%BF%AE%E6%94%B9%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%A0%81%EF%BC%8C%E8%A7%82%E5%AF%9F%E4%B8%A4%E4%B8%AA%E5%AE%B9%E5%99%A8%E7%9A%84%E5%8F%98%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">3.尝试修改宿主机代码，观察两个容器的变化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%A4%9A%E4%B8%AA%E5%AE%B9%E5%99%A8%E4%BD%BF%E7%94%A8%E5%AD%98%E5%82%A8%E5%8D%B7%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">3.4.</span> <span class="nav-text">4.多个容器使用存储卷的原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%88%A0%E9%99%A4%E5%AE%B9%E5%99%A8%E6%97%B6%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9A%84%E6%95%B0%E6%8D%AE%E5%B9%B6%E4%B8%8D%E4%BC%9A%E8%A2%AB%E5%88%A0%E9%99%A4"><span class="nav-number">3.5.</span> <span class="nav-text">5.删除容器时宿主机的数据并不会被删除</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B-%E5%9F%BA%E4%BA%8E%E5%AD%98%E5%82%A8%E5%8D%B7%E6%8C%82%E8%BD%BD%EF%BC%88%E4%BE%8B%E5%A6%82%E4%BF%9D%E5%AD%98MySQL%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四.基于存储卷挂载（例如保存MySQL的数据）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E5%AD%98%E5%82%A8%E5%8D%B7"><span class="nav-number">4.1.</span> <span class="nav-text">1.创建存储卷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8%E5%AD%98%E5%82%A8%E5%8D%B7%E6%8C%82%E8%BD%BD"><span class="nav-number">4.2.</span> <span class="nav-text">2.使用存储卷挂载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%88%A0%E9%99%A4%E5%AE%B9%E5%99%A8%E6%97%B6%EF%BC%8C%E5%AD%98%E5%82%A8%E5%8D%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%B9%B6%E4%B8%8D%E4%BC%9A%E4%B8%A2%E5%A4%B1"><span class="nav-number">4.3.</span> <span class="nav-text">3.删除容器时，存储卷的数据并不会丢失</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%9B%BA%E5%AE%9A%E7%9A%84%E5%8D%B7%E5%90%8D%EF%BC%8C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB"><span class="nav-number">4.4.</span> <span class="nav-text">4.固定的卷名，也可以实现数据共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%85%B3%E4%BA%8E%E5%AD%98%E5%82%A8%E5%8D%B7%E7%9A%84%E5%85%B6%E5%AE%83%E8%AF%B4%E6%98%8E"><span class="nav-number">4.5.</span> <span class="nav-text">5.关于存储卷的其它说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94-%E8%B7%9F%E6%9F%90%E4%B8%AA%E5%AE%B9%E5%99%A8%E6%8C%82%E8%BD%BD%E6%89%80%E6%9C%89%E7%9B%B8%E5%90%8C%E7%9A%84%E5%8D%B7"><span class="nav-number">5.</span> <span class="nav-text">五.跟某个容器挂载所有相同的卷</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%B5%8B%E8%AF%95%E5%8D%B7"><span class="nav-number">5.1.</span> <span class="nav-text">1.创建一个测试卷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%86%8D%E6%AC%A1%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%B5%8B%E8%AF%95%E5%8D%B7"><span class="nav-number">5.2.</span> <span class="nav-text">2.再次创建一个测试卷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C"><span class="nav-number">5.3.</span> <span class="nav-text">3.测试结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD-%E6%8C%81%E4%B9%85%E5%8C%96%E6%95%B0%E6%8D%AE%E5%88%B0%E9%9A%8F%E6%9C%BA%E5%8D%B7%EF%BC%88%E9%80%82%E5%90%88%E4%BF%9D%E5%AD%98%E5%8F%98%E5%8C%96%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%8C%E4%BE%8B%E5%A6%82%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">六.持久化数据到随机卷（适合保存变化的数据，例如日志文件）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E9%9A%8F%E6%9C%BA%E5%8D%B7%E6%9D%A5%E6%8C%81%E4%B9%85%E5%8C%96%E5%AE%B9%E5%99%A8%E7%9A%84%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">6.1.</span> <span class="nav-text">1.创建随机卷来持久化容器的目录下的数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%A0%E9%99%A4%E5%AE%B9%E5%99%A8"><span class="nav-number">6.2.</span> <span class="nav-text">2.删除容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%AF%BE%E5%A0%82%E7%BB%83%E4%B9%A0"><span class="nav-number">6.3.</span> <span class="nav-text">3.课堂练习</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%83-%E8%AF%BE%E5%A0%82%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B%E5%A4%9A%E7%A7%8D%E8%A7%A3%E6%B3%95"><span class="nav-number">7.</span> <span class="nav-text">七.课堂练习案例多种解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%A7%A3%E6%B3%95%E4%B8%80"><span class="nav-number">7.1.</span> <span class="nav-text">1.解法一</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%A7%A3%E6%B3%95%E4%BA%8C"><span class="nav-number">7.2.</span> <span class="nav-text">2.解法二</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%A7%A3%E6%B3%95%E4%B8%89"><span class="nav-number">7.3.</span> <span class="nav-text">3.解法三</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="MING"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">MING</p>
+  <div class="site-description" itemprop="description">Son of the morning star</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=491294233&auto=1&height=66"></iframe>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1844449888&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MING</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
