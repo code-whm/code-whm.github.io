@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一.手动制作单服务的nginx镜像">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Doker镜像手动制作">
+<meta property="og:url" content="http://example.com/2021/08/18/Doker%E9%95%9C%E5%83%8F%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9C/index.html">
+<meta property="og:site_name" content="Lucifer">
+<meta property="og:description" content="一.手动制作单服务的nginx镜像">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/C9315E6F4D744644AB124B45ABDB0636?method=download&shareKey=f254dbe80c8d6226ade282264f94bf02">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/C00DAB73BEF6496F9D6C27264F6CDF3B?method=download&shareKey=77f9ba4614e6e866a25df0ad21f034b5">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/2A8DCD41C8F0436DBE77D81192E880E4?method=download&shareKey=0f5aa2d1de706014eb74639cb622e67b">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/3A5F85847B464EA68CB7886E2C5BA886?method=download&shareKey=15ecf9c32a7fe96d6e5ff1f1d385d201">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/51F557208E174F4088AAADCEEAB3D4C1?method=download&shareKey=f597926040eb57bbe1034060323d93dd">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/096BEA30E4BF4BDF9E2B06597445CB8D?method=download&shareKey=dc39ab8c2496cc61f60be562f7d3c0b4">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/EE84CD461C404D30B285ACFE103246FB?method=download&shareKey=16ba19dac08287da5bc85ef0c3f88835">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/6A6C6CD983904C3DB38FA65DE1F8F816?method=download&shareKey=b13643fc51940bfa8e24f82da2374e0b">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/578A10B4D5D64692BF057DAF9497D502?method=download&shareKey=a89d9f7cc507290d8268e07611a02c2c">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/7A3E4A6F12B84DF281226EC45F133BAA?method=download&shareKey=de15f178387c3320b4e9e5fc8092cfcd">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/9CDEDE45811E4730A55BADF4981509E4?method=download&shareKey=6ca5a709decc2609734e5d7176cb040b">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/26C48EE7B24E45F1B41F5ACE77985C79?method=download&shareKey=a759e129a2cbe47172d201cc8091263b">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/9C02EA7955694625B6DA20CC4176EAA5?method=download&shareKey=6df2d6dcc894b6d9cc07506e1b0ba6fd">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/6AF221F268114007B412AB3C2D5E3BB2?method=download&shareKey=80cc89934ac75c3b7474c7cd70e3a5ac">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/632FB58810224430A7806FDAAF3E9E3B?method=download&shareKey=df874ddf98f9e1261cc004d1b59461ff">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/872DE677B52C4048BBDC8E0FD0E45C14?method=download&shareKey=c66f191aa0ffd33f85f2cee200bd0918">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/459E835A194E4136B1227C1B854EEF6D?method=download&shareKey=b438732977ae572212f3bdacd9530fda">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBf864873b5a34a638c5340e4738901fad?method=download&shareKey=a682c5e4653e6375a590d802f8d9c239">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/019F88EA0F1B4215986CFB765A90863E?method=download&shareKey=32af84b48cdd87aa81a5795c1e12503f">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/1FF4DC9AC71143F79C61D953771A183A?method=download&shareKey=e2262f31e02d8991b2c4dbac57216be7">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/9CE23136C9F64260BADA160A9D6C333E?method=download&shareKey=a82e45b613d7864ea19b8f1e07a480ee">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/5345C1D0832B45E5A170B2539C8C3E7C?method=download&shareKey=9772e3cc59ebf63b4d8323ce8e96b96c">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/181E3EB54CF644A090B07EAC5E64E246?method=download&shareKey=3db5d93cec41f821ee5a6220e77270c6">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/8C77A17D8632404E9D3A44A80C462763?method=download&shareKey=d253891bf5196441cffc382ca73f283e">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/3F8907BF609A401489F8705E80DD8C0F?method=download&shareKey=7a552cc606d5b44a100c7949cc587da6">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/E1DE552D664F4377AC5F8F546A298FB9?method=download&shareKey=77aff3b791f89fdad5bdfeb67d8568ad">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/57CCC7F5C43B44968C3FE59E24C34DFD?method=download&shareKey=0bf638b42d4758821a9c4f47f457b56a">
+<meta property="article:published_time" content="2021-08-18T15:22:44.829Z">
+<meta property="article:modified_time" content="2021-08-18T15:22:34.000Z">
+<meta property="article:author" content="MING">
+<meta property="article:tag" content="Doker -">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://note.youdao.com/yws/api/personal/file/C9315E6F4D744644AB124B45ABDB0636?method=download&shareKey=f254dbe80c8d6226ade282264f94bf02">
+
+<link rel="canonical" href="http://example.com/2021/08/18/Doker%E9%95%9C%E5%83%8F%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Doker镜像手动制作 | Lucifer</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lucifer</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">且将新火试新茶，诗酒趁年华。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">10</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">17</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/18/Doker%E9%95%9C%E5%83%8F%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="MING">
+      <meta itemprop="description" content="Son of the morning star">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lucifer">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Doker镜像手动制作
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-18 23:22:44 / 修改时间：23:22:34" itemprop="dateCreated datePublished" datetime="2021-08-18T23:22:44+08:00">2021-08-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Doker/" itemprop="url" rel="index"><span itemprop="name">Doker -</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一-手动制作单服务的nginx镜像"><a href="#一-手动制作单服务的nginx镜像" class="headerlink" title="一.手动制作单服务的nginx镜像"></a>一.手动制作单服务的nginx镜像</h1><span id="more"></span>
+
+<h2 id="1-启动一个基础容器，此处我使用的是centos7镜像。"><a href="#1-启动一个基础容器，此处我使用的是centos7镜像。" class="headerlink" title="1.启动一个基础容器，此处我使用的是centos7镜像。"></a>1.启动一个基础容器，此处我使用的是centos7镜像。</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container run -it -p 80:80 centos:7 /bin/bash</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-修改容器中的软件源"><a href="#2-修改容器中的软件源" class="headerlink" title="2.修改容器中的软件源"></a>2.修改容器中的软件源</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@e19bb4af59b9 <span class="regexp">/]# curl  -o /</span>etc<span class="regexp">/yum.repos.d/</span>CentOS-Base.repo http:<span class="regexp">//mi</span>rrors.aliyun.com<span class="regexp">/repo/</span>Centos-<span class="number">7</span>.repo</span><br><span class="line"></span><br><span class="line">[root@e19bb4af59b9 <span class="regexp">/]# curl  -o /</span>etc<span class="regexp">/yum.repos.d/</span>epel.repo http:<span class="regexp">//mi</span>rrors.aliyun.com<span class="regexp">/repo/</span>epel-<span class="number">7</span>.repo</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-安装nginx服务并启动nginx服务"><a href="#3-安装nginx服务并启动nginx服务" class="headerlink" title="3.安装nginx服务并启动nginx服务"></a>3.安装nginx服务并启动nginx服务</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># yum -y install nginx</span></span><br><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># nginx</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	如下图所示，我们无法访问到nginx服务的首页文件，因为index.html指向的目标文件并不存在哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/C9315E6F4D744644AB124B45ABDB0636?method=download&shareKey=f254dbe80c8d6226ade282264f94bf02" alt="image-20210614210110373"></p>
+<h2 id="4-修复nginx的首页文件"><a href="#4-修复nginx的首页文件" class="headerlink" title="4.修复nginx的首页文件"></a>4.修复nginx的首页文件</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># rm -f /usr/share/nginx/html/index.html </span></span><br><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># echo <span class="string">&quot;&lt;h1&gt;oldboyedu.com&lt;/h1&gt;&quot;</span> &gt; /usr/share/nginx/html/index.html </span></span><br><span class="line">[root<span class="symbol">@e19bb4af59b9</span> /]<span class="meta"># </span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	如下图所示，由于默认的index.html文件存在问题，因此需要我们手动处理一下，就可以正常访问服务啦~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/C00DAB73BEF6496F9D6C27264F6CDF3B?method=download&shareKey=77f9ba4614e6e866a25df0ad21f034b5" alt="image-20210614210850253"></p>
+<h2 id="5-退出容器"><a href="#5-退出容器" class="headerlink" title="5.退出容器"></a>5.退出容器</h2><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@e19bb4af59b9 /]# <span class="keyword">exit</span> </span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	如下图所示，当我们退出容器后，则容器会跟随者退出了，这意味着在该容器中运行的nginx进程也跟随着退出程序了。</span><br><span class="line">	综上所述，那么正在运行的程序产生的<span class="keyword">socket</span>文件以及<span class="keyword">pid</span>文件可能依旧保留在容器内，并没有对其进行删除！</span><br><span class="line">	对于某些服务而言，如果<span class="keyword">pid</span>文件存在的话，可能会对下一次启动服务造成影响，但对于咱们的案例来说并不会造成影响哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/2A8DCD41C8F0436DBE77D81192E880E4?method=download&shareKey=0f5aa2d1de706014eb74639cb622e67b" alt="image-20210614211526839"></p>
+<h2 id="6-将退出的容器提交为镜像"><a href="#6-将退出的容器提交为镜像" class="headerlink" title="6.将退出的容器提交为镜像"></a>6.将退出的容器提交为镜像</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container commit e19bb4af59b9 oldboyedu_nginx:v1</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	如下图所示，镜像创建成功后，我们可以使用<span class="string">&quot;docker images&quot;</span>进行查看。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/3A5F85847B464EA68CB7886E2C5BA886?method=download&shareKey=15ecf9c32a7fe96d6e5ff1f1d385d201" alt="image-20210614212404092"></p>
+<h2 id="7-测试镜像的可用性"><a href="#7-测试镜像的可用性" class="headerlink" title="7.测试镜像的可用性"></a>7.测试镜像的可用性</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container run -it -d -p 8888:80 oldboyedu_nginx:v1 nginx -g <span class="string">&#x27;daemon off;&#x27;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	(<span class="number">1</span>)上课的时候需要演示出不执行nginx -g <span class="string">&#x27;daemon off;&#x27;</span>的效果，这样学员体验度更加<span class="comment">;</span></span><br><span class="line">	(<span class="number">2</span>)如果启动咱们自己的镜像时不指定命令，则默认继承我们基于centos <span class="number">7</span>镜像的默认初始命令，即<span class="string">&quot;/bin/bash&quot;</span><span class="comment">;</span></span><br><span class="line">	(<span class="number">3</span>)手动制作镜像时貌似无法修改镜像的初始化命令，我们必须学习后面基于自动制作镜像的方式来指定初始化命令。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/51F557208E174F4088AAADCEEAB3D4C1?method=download&shareKey=f597926040eb57bbe1034060323d93dd" alt="image-20210614213142677"></p>
+<h1 id="二-手动制作多服务的nginx-sshd镜像"><a href="#二-手动制作多服务的nginx-sshd镜像" class="headerlink" title="二.手动制作多服务的nginx + sshd镜像"></a>二.手动制作多服务的nginx + sshd镜像</h1><h2 id="1-启用一个基础容器，建议使用上一步安装好的镜像"><a href="#1-启用一个基础容器，建议使用上一步安装好的镜像" class="headerlink" title="1.启用一个基础容器，建议使用上一步安装好的镜像"></a>1.启用一个基础容器，建议使用上一步安装好的镜像</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">我们想要手动制作多服务的nginx + sshd镜像，目前有两种访问:</span><br><span class="line">	(1)基于centos7镜像，单独安装nginx和sshd服务;</span><br><span class="line">	(2)基于我们上一步安装好的镜像，然后单独安装sshd服务;</span><br><span class="line"></span><br><span class="line"><span class="section">启动基础镜像:</span></span><br><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># docker container run -it -p 8888:80 -p 9999:22 oldboyedu_nginx:v1 /bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="section">温馨提示:</span></span><br><span class="line">	如下图所示，sshd的软件包名称为<span class="string">&quot;openssh-server&quot;</span>。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/096BEA30E4BF4BDF9E2B06597445CB8D?method=download&shareKey=dc39ab8c2496cc61f60be562f7d3c0b4" alt="image-20210614225105385"></p>
+<h2 id="2-安装sshd服务"><a href="#2-安装sshd服务" class="headerlink" title="2.安装sshd服务"></a>2.安装sshd服务</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@<span class="number">134453</span>e<span class="number">5</span>d<span class="number">289</span> /]<span class="attr"># yum -y install openssh-server</span></span><br><span class="line"><span class="attr"></span></span><br><span class="line"><span class="attr">温馨提示:</span></span><br><span class="line"><span class="attr">	(1</span>)如下图所示，要求咱们在启动sshd服务之前，得优先启动sshd服务;</span><br><span class="line">	<span class="comment">(2)</span>由于我们的容器镜像比较干净，因此无法直接使用systemctl命令来启动sshd服务，这意味着我们需要手动来启动服务，还好可以参考默认的启动脚本参数;</span><br><span class="line">	<span class="comment">(3)</span>在执行后续的步骤前，请先查看一下<span class="string">&quot;/etc/ssh&quot;</span>目录下的文件。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/EE84CD461C404D30B285ACFE103246FB?method=download&shareKey=16ba19dac08287da5bc85ef0c3f88835" alt="image-20210614233628161"></p>
+<h2 id="3-安装依赖包"><a href="#3-安装依赖包" class="headerlink" title="3.安装依赖包"></a>3.安装依赖包</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@134453e5d289</span> /]<span class="meta"># yum -y install initscripts</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/6A6C6CD983904C3DB38FA65DE1F8F816?method=download&shareKey=b13643fc51940bfa8e24f82da2374e0b" alt="image-20210614235448625"></p>
+<h2 id="4-生成主机的密钥对"><a href="#4-生成主机的密钥对" class="headerlink" title="4.生成主机的密钥对"></a>4.生成主机的密钥对</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@<span class="number">134453</span>e5d289 <span class="regexp">/]# /u</span>sr<span class="regexp">/sbin/</span>sshd-keygen </span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	执行此步骤之前，建议先查看一下<span class="string">&quot;ll /etc/ssh/&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/578A10B4D5D64692BF057DAF9497D502?method=download&shareKey=a89d9f7cc507290d8268e07611a02c2c" alt="image-20210614235757451"></p>
+<h2 id="5-启动sshd服务"><a href="#5-启动sshd服务" class="headerlink" title="5.启动sshd服务"></a>5.启动sshd服务</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@<span class="number">134453</span>e5d289 <span class="regexp">/]# /u</span>sr<span class="regexp">/sbin/</span>sshd</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/7A3E4A6F12B84DF281226EC45F133BAA?method=download&shareKey=de15f178387c3320b4e9e5fc8092cfcd" alt="image-20210615000316347"></p>
+<h2 id="6-修改容器的root密码"><a href="#6-修改容器的root密码" class="headerlink" title="6.修改容器的root密码"></a>6.修改容器的root密码</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@134453e5d289</span> /]<span class="meta"># echo <span class="string">&quot;123456&quot;</span> | passwd --stdin root</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/9CDEDE45811E4730A55BADF4981509E4?method=download&shareKey=6ca5a709decc2609734e5d7176cb040b" alt="image-20210615000919652"></p>
+<h2 id="7-在宿主机中验证容器的sshd服务是否可用"><a href="#7-在宿主机中验证容器的sshd服务是否可用" class="headerlink" title="7.在宿主机中验证容器的sshd服务是否可用"></a>7.在宿主机中验证容器的sshd服务是否可用</h2><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@docker201.oldboyedu.com ~]<span class="comment"># ssh 172.17.0.2</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	登录成功后，请在容器再次执行一次<span class="string">&quot;ps -ef&quot;</span>这样能看到多出来一个<span class="string">&quot;sshd: root@pts/1&quot;</span>和<span class="string">&quot;-bash&quot;</span>的进程哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/26C48EE7B24E45F1B41F5ACE77985C79?method=download&shareKey=a759e129a2cbe47172d201cc8091263b" alt="image-20210615001239719"></p>
+<h2 id="8-退出容器"><a href="#8-退出容器" class="headerlink" title="8.退出容器"></a>8.退出容器</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@134453e5d289</span> /]<span class="meta"># exit </span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/9C02EA7955694625B6DA20CC4176EAA5?method=download&shareKey=6df2d6dcc894b6d9cc07506e1b0ba6fd" alt="image-20210615002044910"></p>
+<h2 id="9-把安装好的服务提交成镜像"><a href="#9-把安装好的服务提交成镜像" class="headerlink" title="9.把安装好的服务提交成镜像"></a>9.把安装好的服务提交成镜像</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container commit 134453e5d289 centos7_nginx_sshd:v1</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	提交成镜像后，请思考是否有给自己留坑，如果很自信，绝对没有问题，则请思考下一步的分析。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/6AF221F268114007B412AB3C2D5E3BB2?method=download&shareKey=80cc89934ac75c3b7474c7cd70e3a5ac" alt="image-20210615002450628"></p>
+<h2 id="10-验证容器的启动，发现问题"><a href="#10-验证容器的启动，发现问题" class="headerlink" title="10.验证容器的启动，发现问题"></a>10.验证容器的启动，发现问题</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container run -d -p 8888:80 -p 9999:22 centos7_nginx_sshd:v1 nginx -g <span class="string">&#x27;daemon off;&#x27;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container run -d -p 18888:80 -p 19999:22 centos7_nginx_sshd:v1 /usr/sbin/sshd -D</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	不难发现，我们在测试镜像的时候发现了问题，如下所示，我们无法做到同时启动两个服务。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/632FB58810224430A7806FDAAF3E9E3B?method=download&shareKey=df874ddf98f9e1261cc004d1b59461ff" alt="image-20210615003409584"></p>
+<h2 id="11-解决无法同时启动两个服务的思路-建议两种思路都尝试一下！"><a href="#11-解决无法同时启动两个服务的思路-建议两种思路都尝试一下！" class="headerlink" title="11.解决无法同时启动两个服务的思路(建议两种思路都尝试一下！)"></a>11.解决无法同时启动两个服务的思路(建议两种思路都尝试一下！)</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">思路一:</span><br><span class="line">    如下图所示，我们可用编写一个脚本来帮咱们启动服务，但该脚本的最后启动的服务应该阻塞当前的容器，避免容器退出。</span><br><span class="line">    [root@<span class="number">0636</span>ae97b332 <span class="regexp">/]# vi /</span>oldboyedu_init.sh</span><br><span class="line">    [root@<span class="number">0636</span>ae97b332 /]<span class="comment"># </span></span><br><span class="line">    [root@<span class="number">0636</span>ae97b332 <span class="regexp">/]# cat /</span>oldboyedu_init.sh</span><br><span class="line">    <span class="comment">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 启动nginx服务，该服务无需阻塞，否则我们就无法启动sshd服务啦!</span></span><br><span class="line">    <span class="comment">#nginx -g &#x27;daemon off;&#x27;</span></span><br><span class="line">    nginx</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 启动sshd服务，但一定要阻塞当前终端，不能退出，否则容器也会退出，前面执行的命令我们无需阻塞住哟~</span></span><br><span class="line">    <span class="regexp">/usr/</span>sbin/sshd -D</span><br><span class="line">    [root@<span class="number">0636</span>ae97b332 /]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">思路二:</span><br><span class="line">	启动容器时指定命令为: <span class="regexp">/bin/</span>sh -c <span class="string">&quot;nginx;/usr/sbin/sshd -D&quot;</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	容器是不走开机启动流程的，因此不要妄想将其写在<span class="string">&quot;rc.local&quot;</span>配置文件中哟~</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/872DE677B52C4048BBDC8E0FD0E45C14?method=download&shareKey=c66f191aa0ffd33f85f2cee200bd0918" alt="image-20210615004431880"></p>
+<h2 id="12-退出容器，再次提交镜像"><a href="#12-退出容器，再次提交镜像" class="headerlink" title="12.退出容器，再次提交镜像"></a>12.退出容器，再次提交镜像</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container commit 0636ae97b332 centos7_nginx_sshd:v2</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/459E835A194E4136B1227C1B854EEF6D?method=download&shareKey=b438732977ae572212f3bdacd9530fda" alt="image-20210615004753083"></p>
+<h2 id="13-再次启动容器进行测试"><a href="#13-再次启动容器进行测试" class="headerlink" title="13.再次启动容器进行测试"></a>13.再次启动容器进行测试</h2><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-attr">[root@docker201.oldboyedu.com ~]</span># docker container run -d -<span class="selector-tag">p</span> 172<span class="selector-class">.200</span><span class="selector-class">.1</span><span class="selector-class">.201</span>:<span class="number">8888</span>:<span class="number">80</span> -p <span class="number">172.200</span>.<span class="number">1.201</span>:<span class="number">9999</span>:<span class="number">22</span> centos7_nginx_sshd:v2 /bin/bash -x /oldboyedu_init.sh</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	(<span class="number">1</span>)启动容器时调用咱们的脚本;</span><br><span class="line">	(<span class="number">2</span>)可以使用logs查看容器的输出内容;</span><br><span class="line">	(<span class="number">3</span>)如下图所示，启动容器后，请用宿主机的IP地址及端口进行访问;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBf864873b5a34a638c5340e4738901fad?method=download&shareKey=a682c5e4653e6375a590d802f8d9c239" alt="image-20210615012046843"></p>
+<h2 id="1-关于可道云"><a href="#1-关于可道云" class="headerlink" title="1.关于可道云"></a>1.关于可道云</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	可道云可以同步备份您的相册或重要资源, 随时随地查看、编辑、分享云端文件，</span><br><span class="line">轻松实现移动办公。</span><br><span class="line"></span><br><span class="line">官方地址:</span><br><span class="line">	https:<span class="regexp">//</span>kodcloud.com/</span><br><span class="line">	</span><br><span class="line">下载地址:</span><br><span class="line">	https:<span class="regexp">//</span>kodcloud.com<span class="regexp">/download/</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-可道云镜像文件的环境说明"><a href="#2-可道云镜像文件的环境说明" class="headerlink" title="2.可道云镜像文件的环境说明"></a>2.可道云镜像文件的环境说明</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">我们可以基于上面生成的nginx和ssh的容器继续制作可道云镜像，但可道云是一个PHP项目，因此得在咱们的容器里安装响应的php程序。</span><br><span class="line"></span><br><span class="line">本案例采用nginx 1.16，php 5.4版本即可。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-启动基础容器"><a href="#3-启动基础容器" class="headerlink" title="3.启动基础容器"></a>3.启动基础容器</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container run -it centos7_nginx_sshd:v2 /bin/bash </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	容器启动成功后，我们可以安装咱们的kod啦~</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-安装php依赖包"><a href="#4-安装php依赖包" class="headerlink" title="4.安装php依赖包"></a>4.安装php依赖包</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@b33f88c4edfd</span> /]<span class="meta"># yum -y install php-fpm php-mbstring.x86_64 php-gd</span></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	安装php程序的依赖包。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-修改nginx的配置文件"><a href="#5-修改nginx的配置文件" class="headerlink" title="5.修改nginx的配置文件"></a>5.修改nginx的配置文件</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)创建代码存放目录</span><br><span class="line">[root@b33f88c4edfd <span class="regexp">/]# mkdir -pv /</span>oldboyedu/html  <span class="comment"># 创建存放代码的目录</span></span><br><span class="line">mkdir: created directory ‘/oldboyedu’</span><br><span class="line">mkdir: created directory ‘<span class="regexp">/oldboyedu/</span>html’</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># </span></span><br><span class="line">[root@b33f88c4edfd <span class="regexp">/]# ll /</span>oldboyedu<span class="regexp">/html/</span> -d</span><br><span class="line">drwxr-xr-x <span class="number">2</span> root root <span class="number">6</span> Jun <span class="number">14</span> <span class="number">17</span>:<span class="number">29</span> <span class="regexp">/oldboyedu/</span>html/</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(<span class="number">2</span>)修改nginx的配置文件</span><br><span class="line">[root@b33f88c4edfd <span class="regexp">/]# egrep -v &quot;^$|^*#&quot; /</span>etc<span class="regexp">/nginx/</span>nginx.conf.default &gt; <span class="regexp">/etc/</span>nginx/nginx.conf</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># </span></span><br><span class="line">[root@b33f88c4edfd <span class="regexp">/]# vi /</span>etc<span class="regexp">/nginx/</span>nginx.conf</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># </span></span><br><span class="line">[root@b33f88c4edfd <span class="regexp">/]# cat /</span>etc<span class="regexp">/nginx/</span>nginx.conf</span><br><span class="line">worker_processes  <span class="number">1</span>;</span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line">    sendfile        on;</span><br><span class="line">    keepalive_timeout  <span class="number">65</span>;</span><br><span class="line">    server &#123;</span><br><span class="line">        listen       <span class="number">80</span>;</span><br><span class="line">        server_name  localhost;</span><br><span class="line">        location / &#123;</span><br><span class="line">            root   <span class="regexp">/oldboyedu/</span>html;</span><br><span class="line">            index  index.php index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line">        location ~ \.php$ &#123;</span><br><span class="line">            root           html;</span><br><span class="line">            fastcgi_pass   <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">9000</span>;</span><br><span class="line">            fastcgi_index  index.php;</span><br><span class="line">            fastcgi_param  SCRIPT_FILENAME  <span class="regexp">/oldboyedu/</span>html<span class="variable">$fastcgi_script_name</span>;</span><br><span class="line">            include        fastcgi_params;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">(<span class="number">3</span>)测试nginx的配置文件是否正确</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># nginx -t</span></span><br><span class="line">nginx: the configuration file <span class="regexp">/etc/</span>nginx/nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file <span class="regexp">/etc/</span>nginx/nginx.conf test is successful</span><br><span class="line">[root@b33f88c4edfd /]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-修改php程序的运行用户"><a href="#6-修改php程序的运行用户" class="headerlink" title="6.修改php程序的运行用户"></a>6.修改php程序的运行用户</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@b33f88c4edfd <span class="regexp">/]# vi /</span>etc<span class="regexp">/php-fpm.d/</span>www.conf</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	如下图所示，我们只需修改运行php的用户名和组名即可。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/019F88EA0F1B4215986CFB765A90863E?method=download&shareKey=32af84b48cdd87aa81a5795c1e12503f" alt="image-20210615012046843"></p>
+<h2 id="6-运行php程序"><a href="#6-运行php程序" class="headerlink" title="6.运行php程序"></a>6.运行php程序</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@b33f88c4edfd</span> /]<span class="meta"># php-fpm -D</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/1FF4DC9AC71143F79C61D953771A183A?method=download&shareKey=e2262f31e02d8991b2c4dbac57216be7" alt="image-20210615012310604"></p>
+<h2 id="7-解压代码"><a href="#7-解压代码" class="headerlink" title="7.解压代码"></a>7.解压代码</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)将下载的kod软件包上传到容器中</span><br><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container cp kodexplorer4.40.zip b33f88c4edfd:/oldboyedu/html</span></span><br><span class="line"></span><br><span class="line">(<span class="number">2</span>)安装unzip程序包</span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> /]<span class="meta"># yum -y install unzip</span></span><br><span class="line"></span><br><span class="line">(<span class="number">3</span>)解压软件包</span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> ~]<span class="meta"># cd /oldboyedu/html</span></span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># unzip kodexplorer4.40.zip </span></span><br><span class="line"></span><br><span class="line">(<span class="number">3</span>)修改文件权限</span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># chown -R nginx:nginx .</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/9CE23136C9F64260BADA160A9D6C333E?method=download&shareKey=a82e45b613d7864ea19b8f1e07a480ee" alt="image-20210615014226185"></p>
+<h2 id="8-编写启动脚本"><a href="#8-编写启动脚本" class="headerlink" title="8.编写启动脚本"></a>8.编写启动脚本</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># vi /oldboyedu_init.sh </span></span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># </span></span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># cat /oldboyedu_init.sh </span></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># 启动nginx服务，该服务无需阻塞，否则我们就无法启动sshd服务啦!</span></span><br><span class="line"><span class="meta">#nginx -g <span class="string">&#x27;daemon off;&#x27;</span></span></span><br><span class="line">nginx</span><br><span class="line"></span><br><span class="line"><span class="meta"># 启动php程序</span></span><br><span class="line">php-fpm -D</span><br><span class="line"></span><br><span class="line"><span class="meta"># 启动sshd服务，但一定要阻塞当前终端，不能退出，否则容器也会退出，前面执行的命令我们无需阻塞住哟~</span></span><br><span class="line">/usr/sbin/sshd -D</span><br><span class="line">[root<span class="symbol">@b33f88c4edfd</span> html]<span class="meta"># </span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="9-提交镜像"><a href="#9-提交镜像" class="headerlink" title="9.提交镜像"></a>9.提交镜像</h2><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@docker201</span>.oldboyedu.com ~]<span class="meta"># docker container commit b33f88c4edfd oldboyedu_kod:v1</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/5345C1D0832B45E5A170B2539C8C3E7C?method=download&shareKey=9772e3cc59ebf63b4d8323ce8e96b96c" alt="image-20210615015030086"></p>
+<h2 id="10-启动镜像"><a href="#10-启动镜像" class="headerlink" title="10.启动镜像"></a>10.启动镜像</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-attr">[root@docker201.oldboyedu.com ~]</span># <span class="selector-tag">docker</span> <span class="selector-tag">container</span> <span class="selector-tag">run</span> <span class="selector-tag">-d</span> <span class="selector-tag">-p</span> <span class="selector-tag">8888</span>:<span class="selector-tag">80</span> <span class="selector-tag">oldboyedu_kod</span>:<span class="selector-tag">v1</span> /<span class="selector-tag">bin</span>/<span class="selector-tag">bash</span> <span class="selector-tag">-x</span> /<span class="selector-tag">oldboyedu_init</span><span class="selector-class">.sh</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">温馨提示:</span><br><span class="line">	(<span class="number">1</span>)我这里只需要访问<span class="selector-tag">80</span>端口，因此我启动容器的时候就只暴露了<span class="selector-tag">80</span>端口哟；</span><br><span class="line">	(<span class="number">2</span>)访问宿主机的<span class="selector-tag">8888</span>端口，就可以访问到容器的<span class="selector-tag">80</span>端口了，可以访问如下图所示的界面，输入管理员密码即可；</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/181E3EB54CF644A090B07EAC5E64E246?method=download&shareKey=3db5d93cec41f821ee5a6220e77270c6" alt="image-20210615015428418"></p>
+<h2 id="11-登录可道云"><a href="#11-登录可道云" class="headerlink" title="11.登录可道云"></a>11.登录可道云</h2><p><img src="https://note.youdao.com/yws/api/personal/file/8C77A17D8632404E9D3A44A80C462763?method=download&shareKey=d253891bf5196441cffc382ca73f283e" alt="image-20210615015842566"></p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如上图所示，用户默认是<span class="string">&quot;admin&quot;</span>，我们使用初始化指定的管理员密码进行登录。</span><br><span class="line"></span><br><span class="line">登录成功后的界面如下图所示。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/3F8907BF609A401489F8705E80DD8C0F?method=download&shareKey=7a552cc606d5b44a100c7949cc587da6" alt="image-20210615020026395"></p>
+<h1 id="四-常见的报错汇总"><a href="#四-常见的报错汇总" class="headerlink" title="四.常见的报错汇总"></a>四.常见的报错汇总</h1><h2 id="1-Failed-to-get-D-Bus-connection-Operation-not-permitted"><a href="#1-Failed-to-get-D-Bus-connection-Operation-not-permitted" class="headerlink" title="1.Failed to get D-Bus connection: Operation not permitted"></a>1.Failed to get D-Bus connection: Operation not permitted</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">问题描述:</span></span><br><span class="line">	如下图所示，在启动sshd服务时，抛出了<span class="string">&quot;Failed to get D-Bus connection: Operation not permitted&quot;</span>异常。</span><br><span class="line"></span><br><span class="line"><span class="section">问题原因:</span></span><br><span class="line">	未运行<span class="string">&quot;/usr/bin/dbus-daemon&quot;</span>进程。</span><br><span class="line"></span><br><span class="line"><span class="section">解决方案:</span></span><br><span class="line">	方案一:</span><br><span class="line">		运行<span class="string">&quot;/usr/bin/dbus-daemon&quot;</span>进程，但需要对其进行一定的了解。</span><br><span class="line">	</span><br><span class="line">	方案二:</span><br><span class="line">		手动启动ssh服务。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/E1DE552D664F4377AC5F8F546A298FB9?method=download&shareKey=77aff3b791f89fdad5bdfeb67d8568ad" alt="image-20210614234149579"></p>
+<h2 id="2-usr-sbin-sshd-keygen-line-10-etc-rc-d-init-d-functions-No-such-file-or-directory"><a href="#2-usr-sbin-sshd-keygen-line-10-etc-rc-d-init-d-functions-No-such-file-or-directory" class="headerlink" title="2./usr/sbin/sshd-keygen: line 10: /etc/rc.d/init.d/functions: No such file or directory"></a>2./usr/sbin/sshd-keygen: line 10: /etc/rc.d/init.d/functions: No such file or directory</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">问题描述:</span><br><span class="line">	手动运行<span class="string">&quot;/usr/sbin/sshd-keygen&quot;</span>脚本时报错。</span><br><span class="line">	</span><br><span class="line">问题原因:</span><br><span class="line">	该脚本调用系统函数库<span class="string">&quot;functions&quot;</span>。</span><br><span class="line">	</span><br><span class="line">解决方案:</span><br><span class="line">	yum provides <span class="regexp">/etc/</span>rc.d<span class="regexp">/init.d/</span>functions  <span class="comment"># 查看该文件被哪个依赖包产生。</span></span><br><span class="line">	yum -y install initscripts  <span class="comment"># 根据上一步结果得到该步骤。</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/57CCC7F5C43B44968C3FE59E24C34DFD?method=download&shareKey=0bf638b42d4758821a9c4f47f457b56a" alt="image-20210614234934602"></p>
+<h2 id="3"><a href="#3" class="headerlink" title="3."></a>3.</h2>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>MING
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/2021/08/18/Doker%E9%95%9C%E5%83%8F%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9C/" title="Doker镜像手动制作">http://example.com/2021/08/18/Doker镜像手动制作/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Doker/" rel="tag"># Doker -</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/18/Docker%E5%82%A8%E5%AD%98%E5%8D%B7%E6%A6%82%E8%BF%B0/" rel="prev" title="Docker储存卷概述">
+      <i class="fa fa-chevron-left"></i> Docker储存卷概述
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9C%E5%8D%95%E6%9C%8D%E5%8A%A1%E7%9A%84nginx%E9%95%9C%E5%83%8F"><span class="nav-number">1.</span> <span class="nav-text">一.手动制作单服务的nginx镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%90%AF%E5%8A%A8%E4%B8%80%E4%B8%AA%E5%9F%BA%E7%A1%80%E5%AE%B9%E5%99%A8%EF%BC%8C%E6%AD%A4%E5%A4%84%E6%88%91%E4%BD%BF%E7%94%A8%E7%9A%84%E6%98%AFcentos7%E9%95%9C%E5%83%8F%E3%80%82"><span class="nav-number">1.1.</span> <span class="nav-text">1.启动一个基础容器，此处我使用的是centos7镜像。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BF%AE%E6%94%B9%E5%AE%B9%E5%99%A8%E4%B8%AD%E7%9A%84%E8%BD%AF%E4%BB%B6%E6%BA%90"><span class="nav-number">1.2.</span> <span class="nav-text">2.修改容器中的软件源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%AE%89%E8%A3%85nginx%E6%9C%8D%E5%8A%A1%E5%B9%B6%E5%90%AF%E5%8A%A8nginx%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.3.</span> <span class="nav-text">3.安装nginx服务并启动nginx服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BF%AE%E5%A4%8Dnginx%E7%9A%84%E9%A6%96%E9%A1%B5%E6%96%87%E4%BB%B6"><span class="nav-number">1.4.</span> <span class="nav-text">4.修复nginx的首页文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E9%80%80%E5%87%BA%E5%AE%B9%E5%99%A8"><span class="nav-number">1.5.</span> <span class="nav-text">5.退出容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%B0%86%E9%80%80%E5%87%BA%E7%9A%84%E5%AE%B9%E5%99%A8%E6%8F%90%E4%BA%A4%E4%B8%BA%E9%95%9C%E5%83%8F"><span class="nav-number">1.6.</span> <span class="nav-text">6.将退出的容器提交为镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%B5%8B%E8%AF%95%E9%95%9C%E5%83%8F%E7%9A%84%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="nav-number">1.7.</span> <span class="nav-text">7.测试镜像的可用性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9C%E5%A4%9A%E6%9C%8D%E5%8A%A1%E7%9A%84nginx-sshd%E9%95%9C%E5%83%8F"><span class="nav-number">2.</span> <span class="nav-text">二.手动制作多服务的nginx + sshd镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%90%AF%E7%94%A8%E4%B8%80%E4%B8%AA%E5%9F%BA%E7%A1%80%E5%AE%B9%E5%99%A8%EF%BC%8C%E5%BB%BA%E8%AE%AE%E4%BD%BF%E7%94%A8%E4%B8%8A%E4%B8%80%E6%AD%A5%E5%AE%89%E8%A3%85%E5%A5%BD%E7%9A%84%E9%95%9C%E5%83%8F"><span class="nav-number">2.1.</span> <span class="nav-text">1.启用一个基础容器，建议使用上一步安装好的镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85sshd%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.2.</span> <span class="nav-text">2.安装sshd服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E5%8C%85"><span class="nav-number">2.3.</span> <span class="nav-text">3.安装依赖包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%94%9F%E6%88%90%E4%B8%BB%E6%9C%BA%E7%9A%84%E5%AF%86%E9%92%A5%E5%AF%B9"><span class="nav-number">2.4.</span> <span class="nav-text">4.生成主机的密钥对</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%90%AF%E5%8A%A8sshd%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.5.</span> <span class="nav-text">5.启动sshd服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E4%BF%AE%E6%94%B9%E5%AE%B9%E5%99%A8%E7%9A%84root%E5%AF%86%E7%A0%81"><span class="nav-number">2.6.</span> <span class="nav-text">6.修改容器的root密码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%9C%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%AD%E9%AA%8C%E8%AF%81%E5%AE%B9%E5%99%A8%E7%9A%84sshd%E6%9C%8D%E5%8A%A1%E6%98%AF%E5%90%A6%E5%8F%AF%E7%94%A8"><span class="nav-number">2.7.</span> <span class="nav-text">7.在宿主机中验证容器的sshd服务是否可用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E9%80%80%E5%87%BA%E5%AE%B9%E5%99%A8"><span class="nav-number">2.8.</span> <span class="nav-text">8.退出容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%8A%8A%E5%AE%89%E8%A3%85%E5%A5%BD%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%8F%90%E4%BA%A4%E6%88%90%E9%95%9C%E5%83%8F"><span class="nav-number">2.9.</span> <span class="nav-text">9.把安装好的服务提交成镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E9%AA%8C%E8%AF%81%E5%AE%B9%E5%99%A8%E7%9A%84%E5%90%AF%E5%8A%A8%EF%BC%8C%E5%8F%91%E7%8E%B0%E9%97%AE%E9%A2%98"><span class="nav-number">2.10.</span> <span class="nav-text">10.验证容器的启动，发现问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E8%A7%A3%E5%86%B3%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E5%90%AF%E5%8A%A8%E4%B8%A4%E4%B8%AA%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%80%9D%E8%B7%AF-%E5%BB%BA%E8%AE%AE%E4%B8%A4%E7%A7%8D%E6%80%9D%E8%B7%AF%E9%83%BD%E5%B0%9D%E8%AF%95%E4%B8%80%E4%B8%8B%EF%BC%81"><span class="nav-number">2.11.</span> <span class="nav-text">11.解决无法同时启动两个服务的思路(建议两种思路都尝试一下！)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-%E9%80%80%E5%87%BA%E5%AE%B9%E5%99%A8%EF%BC%8C%E5%86%8D%E6%AC%A1%E6%8F%90%E4%BA%A4%E9%95%9C%E5%83%8F"><span class="nav-number">2.12.</span> <span class="nav-text">12.退出容器，再次提交镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-%E5%86%8D%E6%AC%A1%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8%E8%BF%9B%E8%A1%8C%E6%B5%8B%E8%AF%95"><span class="nav-number">2.13.</span> <span class="nav-text">13.再次启动容器进行测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%85%B3%E4%BA%8E%E5%8F%AF%E9%81%93%E4%BA%91"><span class="nav-number">2.14.</span> <span class="nav-text">1.关于可道云</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%8F%AF%E9%81%93%E4%BA%91%E9%95%9C%E5%83%8F%E6%96%87%E4%BB%B6%E7%9A%84%E7%8E%AF%E5%A2%83%E8%AF%B4%E6%98%8E"><span class="nav-number">2.15.</span> <span class="nav-text">2.可道云镜像文件的环境说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%90%AF%E5%8A%A8%E5%9F%BA%E7%A1%80%E5%AE%B9%E5%99%A8"><span class="nav-number">2.16.</span> <span class="nav-text">3.启动基础容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%AE%89%E8%A3%85php%E4%BE%9D%E8%B5%96%E5%8C%85"><span class="nav-number">2.17.</span> <span class="nav-text">4.安装php依赖包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%BF%AE%E6%94%B9nginx%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.18.</span> <span class="nav-text">5.修改nginx的配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E4%BF%AE%E6%94%B9php%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C%E7%94%A8%E6%88%B7"><span class="nav-number">2.19.</span> <span class="nav-text">6.修改php程序的运行用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E8%BF%90%E8%A1%8Cphp%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.20.</span> <span class="nav-text">6.运行php程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E8%A7%A3%E5%8E%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">2.21.</span> <span class="nav-text">7.解压代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E7%BC%96%E5%86%99%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC"><span class="nav-number">2.22.</span> <span class="nav-text">8.编写启动脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%8F%90%E4%BA%A4%E9%95%9C%E5%83%8F"><span class="nav-number">2.23.</span> <span class="nav-text">9.提交镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E5%90%AF%E5%8A%A8%E9%95%9C%E5%83%8F"><span class="nav-number">2.24.</span> <span class="nav-text">10.启动镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E7%99%BB%E5%BD%95%E5%8F%AF%E9%81%93%E4%BA%91"><span class="nav-number">2.25.</span> <span class="nav-text">11.登录可道云</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B-%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8A%A5%E9%94%99%E6%B1%87%E6%80%BB"><span class="nav-number">3.</span> <span class="nav-text">四.常见的报错汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Failed-to-get-D-Bus-connection-Operation-not-permitted"><span class="nav-number">3.1.</span> <span class="nav-text">1.Failed to get D-Bus connection: Operation not permitted</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-usr-sbin-sshd-keygen-line-10-etc-rc-d-init-d-functions-No-such-file-or-directory"><span class="nav-number">3.2.</span> <span class="nav-text">2.&#x2F;usr&#x2F;sbin&#x2F;sshd-keygen: line 10: &#x2F;etc&#x2F;rc.d&#x2F;init.d&#x2F;functions: No such file or directory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3"><span class="nav-number">3.3.</span> <span class="nav-text">3.</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="MING"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">MING</p>
+  <div class="site-description" itemprop="description">Son of the morning star</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=491294233&auto=1&height=66"></iframe>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1844449888&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MING</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
